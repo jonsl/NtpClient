@@ -1,8 +1,8 @@
-package com.ntpclient.ui;
+package com.ntpclient.src.ui;
 
-import com.ntpclient.datamodel.DataModel;
-import com.ntpclient.datamodel.HistoryDataGroup;
-import com.ntpclient.datamodel.Observer;
+import com.ntpclient.src.datamodel.Observer;
+import com.ntpclient.src.datamodel.DataModel;
+import com.ntpclient.src.datamodel.HistoryDataGroup;
 import javafx.scene.layout.StackPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -37,6 +37,7 @@ public class HistoryChart extends StackPane implements Observer {
                 false);
 
         ChartViewer chartViewer = new ChartViewer(chart);
+
         // remove default pan handler
         MouseHandlerFX mouseHandlerFX = chartViewer.getCanvas().getMouseHandler("pan");
         chartViewer.getCanvas().removeMouseHandler(mouseHandlerFX);

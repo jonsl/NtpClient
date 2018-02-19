@@ -1,18 +1,18 @@
-package com.ntpclient.ui;
+package com.ntpclient.src.ui;
 
-import com.ntpclient.datamodel.DataModel;
+import com.ntpclient.src.datamodel.DataModel;
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
     public static void main(String[] args) {
-        launch(args);
+        launch(Main.class, args);
     }
 
     @Override
@@ -22,14 +22,20 @@ public class Main extends Application {
         SplitPane sp = new SplitPane();
         sp.setOrientation(Orientation.VERTICAL);
         final StackPane sp1 = new StackPane();
-        sp1.getChildren().add(new HistoryChart());
+        HistoryChart historyChart = new HistoryChart();
+        sp1.getChildren().add(historyChart);
         final StackPane sp2 = new StackPane();
-        sp2.getChildren().add(new Button("Button Two"));
+        Button button = new Button("Button Two");
+        button.setStyle("-fx-font-size: 12pt;");
+        button.setMaxHeight(Control.USE_PREF_SIZE);
+        sp2.getChildren().add(button);
         sp.getItems().addAll(sp1, sp2);
         sp.setDividerPositions(0.5f);
         StackPane root = new StackPane();
         root.getChildren().add(sp);
-        primaryStage.setScene(new Scene(root, 800, 600));
+        Scene scene = new Scene(root, 800, 600);
+        primaryStage.sizeToScene();
+        primaryStage.setScene(scene);
         primaryStage.show();
 
         // connect to database and get data

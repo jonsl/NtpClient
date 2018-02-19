@@ -1,4 +1,4 @@
-package com.ntpclient.datamodel;
+package com.ntpclient.src.datamodel;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -10,7 +10,7 @@ import java.util.List;
 public class DataModel {
     private static DataModel ourInstance = new DataModel();
     // database
-    private static String dbFileName = "ntp-client.db";
+    private static String dbFileName = "ntpClient.db";
     private final HistoryDataGroup historyDataGroup = new HistoryDataGroup();
     private final OptionDataGroup optionDataGroup = new OptionDataGroup();
     private final ServerDataGroup serverDataGroup = new ServerDataGroup();

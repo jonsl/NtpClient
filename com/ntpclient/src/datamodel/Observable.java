@@ -1,4 +1,4 @@
-package com.ntpclient.datamodel;
+package com.ntpclient.src.datamodel;
 
 public interface Observable {
     /**
