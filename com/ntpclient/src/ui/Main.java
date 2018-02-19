@@ -25,10 +25,8 @@ public class Main extends Application {
         HistoryChart historyChart = new HistoryChart();
         sp1.getChildren().add(historyChart);
         final StackPane sp2 = new StackPane();
-        Button button = new Button("Button Two");
-        button.setStyle("-fx-font-size: 12pt;");
-        button.setMaxHeight(Control.USE_PREF_SIZE);
-        sp2.getChildren().add(button);
+        OptionPane optionPane = new OptionPane();
+        sp2.getChildren().add(optionPane);
         sp.getItems().addAll(sp1, sp2);
         sp.setDividerPositions(0.5f);
         StackPane root = new StackPane();
