@@ -4,8 +4,6 @@ import com.ntpclient.src.datamodel.DataModel;
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Control;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;

@@ -1,8 +1,8 @@
 package com.ntpclient.src.ui;
 
-import com.ntpclient.src.datamodel.Observer;
 import com.ntpclient.src.datamodel.DataModel;
 import com.ntpclient.src.datamodel.HistoryDataGroup;
+import com.ntpclient.src.datamodel.Observer;
 import javafx.scene.layout.StackPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
