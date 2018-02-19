@@ -59,8 +59,6 @@ public class HistoryChart extends StackPane implements Observer {
         TimeSeries roundTripTimeSeries = new TimeSeries("round trip time");
         TimeSeries offsetTimeSeries = new TimeSeries("offset time");
 
-        int SIZE = DataModel.getInstance().getHistoryDataGroup().getHistoryEntries().size();
-
         Date date = new Date();
         for (HistoryDataGroup.HistoryEntry historyEntry : DataModel.getInstance().getHistoryDataGroup().getHistoryEntries()) {
             long currentTime = (long) (historyEntry.getCurrentTime() - 2208988800L) * 1000L;
