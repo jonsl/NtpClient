@@ -18,12 +18,12 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 import java.util.Date;
 
-public class HistoryChart extends StackPane implements Observer {
+class HistoryChart extends StackPane implements Observer {
     private TimeSeriesCollection timeDataset = new TimeSeriesCollection();
     private JFreeChart chart;
     private double windowSizeMillis = 1000.0 * 60.0 * 10.0;
 
-    public HistoryChart() {
+    HistoryChart() {
         super();
         DataModel.getInstance().getHistoryDataGroup().addObserver(this);
 

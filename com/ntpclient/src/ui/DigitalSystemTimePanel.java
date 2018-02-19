@@ -1,9 +1,15 @@
 package com.ntpclient.src.ui;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -20,42 +26,74 @@ import java.util.TimerTask;
 
 enum TimeZoneType {LOCAL_TIMEZONE, UTC_TIMEZONE}
 
-public class DigitalSystemTimePanel extends GridPane {
-    private final Timer timer;
+class DigitalSystemTimePanel extends GridPane {
     private TimeZoneType timeZoneType;
     private TimeDateLabel dateLabel;
     private TimeDateLabel dayLabel;
     private TimeDateLabel timeLabel;
 
-    public DigitalSystemTimePanel() {
+    DigitalSystemTimePanel() {
         super();
 
-        setStyle("-fx-background-color:black;");
+        GridPane gridPane = new GridPane();
+
+        gridPane.setStyle("-fx-background-color:black;");
 
         ColumnConstraints col1 = new ColumnConstraints(110);
         col1.setHgrow(Priority.ALWAYS);
         ColumnConstraints col2 = new ColumnConstraints(110);
         col2.setHgrow(Priority.ALWAYS);
 
-        getColumnConstraints().addAll(col1, col2);
+        gridPane.getColumnConstraints().addAll(col1, col2);
 
-        this.timer = new Timer(true);
+        final Timer timer = new Timer(true);
         this.timeZoneType = TimeZoneType.LOCAL_TIMEZONE;
 
         setPadding(new Insets(0, 3, 0, 3));
 
         this.dateLabel = new TimeDateLabel("date");
-        add(this.dateLabel, 0, 0, 1, 1);
+        gridPane.add(this.dateLabel, 0, 0, 1, 1);
 
         this.timeLabel = new TimeDateLabel("time");
-        add(this.timeLabel, 0, 1, 2, 1);
+        gridPane.add(this.timeLabel, 0, 1, 2, 1);
 
         this.dayLabel = new TimeDateLabel("day");
-        add(this.dayLabel, 1, 0, 1, 1);
+        gridPane.add(this.dayLabel, 1, 0, 1, 1);
 
-        setMinWidth(USE_COMPUTED_SIZE);
+        add(gridPane, 0, 0);
 
-        this.timer.scheduleAtFixedRate(new UpdateTimeTask(), 100, 100);
+        BorderPane borderPane = new BorderPane();
+
+        RadioButton rb1 = new RadioButton("Local time");
+        rb1.setUserData("L");
+        borderPane.setLeft(rb1);
+        GridPane.setHalignment(rb1, HPos.LEFT);
+        RadioButton rb2 = new RadioButton("UTC Time");
+        rb2.setUserData("U");
+        borderPane.setRight(rb2);
+
+        add(borderPane, 0, 1);
+
+        final ToggleGroup group = new ToggleGroup();
+        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
+                if (group.getSelectedToggle().getUserData() != null) {
+                    if (group.getSelectedToggle().getUserData().toString().equals("L")) {
+                        timeZoneType = TimeZoneType.LOCAL_TIMEZONE;
+                    } else if (group.getSelectedToggle().getUserData().toString().equals("U")) {
+                        timeZoneType = TimeZoneType.UTC_TIMEZONE;
+                    }
+                }
+            }
+        });
+
+        rb1.setToggleGroup(group);
+        rb2.setToggleGroup(group);
+
+        rb1.setSelected(true);
+
+        timer.scheduleAtFixedRate(new UpdateTimeTask(), 100, 100);
     }
 
     class UpdateTimeTask extends TimerTask {
