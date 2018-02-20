@@ -12,6 +12,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 public class Main extends Application {
     public static void main(String[] args) {
         launch(Main.class, args);
@@ -21,7 +23,8 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("NTP Client Monitor");
 
-        SystemUtils.getOsType();
+        SystemUtils systemUtils = new SystemUtils();
+        List<SystemUtils.Peer> peers = systemUtils.getPeerList();
 
         // tree / chart pane
         final StackPane sp1 = new StackPane();
