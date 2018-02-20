@@ -1,6 +1,7 @@
 package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.DataModel;
+import com.ntpclientmonitor.src.datamodel.SystemUtils;
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -19,6 +20,9 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("NTP Client Monitor");
+
+        SystemUtils.getOsType();
+
         // tree / chart pane
         final StackPane sp1 = new StackPane();
         final StackPane sp2 = new StackPane();
