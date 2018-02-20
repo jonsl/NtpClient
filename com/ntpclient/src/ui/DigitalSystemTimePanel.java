@@ -24,7 +24,9 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.Timer;
 import java.util.TimerTask;
 
-enum TimeZoneType {LOCAL_TIMEZONE, UTC_TIMEZONE}
+enum TimeZoneType {LOCAL, UTC}
+
+enum TimeDateLabelType {DATE, TIME, DAY};
 
 class DigitalSystemTimePanel extends GridPane {
     private TimeZoneType timeZoneType;
@@ -47,17 +49,17 @@ class DigitalSystemTimePanel extends GridPane {
         gridPane.getColumnConstraints().addAll(col1, col2);
 
         final Timer timer = new Timer(true);
-        this.timeZoneType = TimeZoneType.LOCAL_TIMEZONE;
+        this.timeZoneType = TimeZoneType.LOCAL;
 
         setPadding(new Insets(0, 3, 0, 3));
 
-        this.dateLabel = new TimeDateLabel("date");
+        this.dateLabel = new TimeDateLabel(TimeDateLabelType.DATE);
         gridPane.add(this.dateLabel, 0, 0, 1, 1);
 
-        this.timeLabel = new TimeDateLabel("time");
+        this.timeLabel = new TimeDateLabel(TimeDateLabelType.TIME);
         gridPane.add(this.timeLabel, 0, 1, 2, 1);
 
-        this.dayLabel = new TimeDateLabel("day");
+        this.dayLabel = new TimeDateLabel(TimeDateLabelType.DAY);
         gridPane.add(this.dayLabel, 1, 0, 1, 1);
 
         add(gridPane, 0, 0);
@@ -80,9 +82,9 @@ class DigitalSystemTimePanel extends GridPane {
             public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
                 if (group.getSelectedToggle().getUserData() != null) {
                     if (group.getSelectedToggle().getUserData().toString().equals("L")) {
-                        timeZoneType = TimeZoneType.LOCAL_TIMEZONE;
+                        timeZoneType = TimeZoneType.LOCAL;
                     } else if (group.getSelectedToggle().getUserData().toString().equals("U")) {
-                        timeZoneType = TimeZoneType.UTC_TIMEZONE;
+                        timeZoneType = TimeZoneType.UTC;
                     }
                 }
             }
@@ -109,10 +111,10 @@ class DigitalSystemTimePanel extends GridPane {
     }
 
     class TimeDateLabel extends Label {
-        String type;
+        TimeDateLabelType type;
         DateTimeFormatter formatter;
 
-        public TimeDateLabel(String type) {
+        TimeDateLabel(TimeDateLabelType type) {
             this.type = type;
         }
 
@@ -120,17 +122,17 @@ class DigitalSystemTimePanel extends GridPane {
             setTextFill(Color.web("#00ff00"));
             setStyle("-fx-background-color:black;");
             switch (type) {
-                case "date":
+                case DATE:
                     formatter = new DateTimeFormatterBuilder().appendPattern("dd MMMM yyyy").toFormatter();
                     setFont(Font.font("sans-serif", FontPosture.ITALIC, 12));
                     GridPane.setHalignment(this, HPos.LEFT);
                     break;
-                case "time":
+                case TIME:
                     formatter = new DateTimeFormatterBuilder().appendPattern("HH:mm:ss.S").toFormatter();
                     setFont(Font.font("sans-serif", FontPosture.REGULAR, 40));
                     GridPane.setHalignment(this, HPos.CENTER);
                     break;
-                case "day":
+                case DAY:
                     formatter = new DateTimeFormatterBuilder().appendPattern("z (Z)").toFormatter();
                     setFont(Font.font("sans-serif", FontPosture.ITALIC, 12));
                     GridPane.setHalignment(this, HPos.RIGHT);
@@ -140,12 +142,12 @@ class DigitalSystemTimePanel extends GridPane {
                     break;
             }
             switch (timeZoneType) {
-                case LOCAL_TIMEZONE: {
+                case LOCAL: {
                     ZonedDateTime zonedDateTime = ZonedDateTime.now();
                     setText(formatter.format(zonedDateTime));
                     break;
                 }
-                case UTC_TIMEZONE: {
+                case UTC: {
                     ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("UTC"));
                     setText(formatter.format(zonedDateTime));
                     break;

@@ -4,7 +4,10 @@ import com.ntpclient.src.datamodel.DataModel;
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -15,20 +18,37 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("NTP Client");
-
-        SplitPane sp = new SplitPane();
-        sp.setOrientation(Orientation.VERTICAL);
+        primaryStage.setTitle("NTP Client Monitor");
+        // tree / chart pane
         final StackPane sp1 = new StackPane();
-        HistoryChart historyChart = new HistoryChart();
-        sp1.getChildren().add(historyChart);
         final StackPane sp2 = new StackPane();
+        HistoryChart historyChart = new HistoryChart();
+        sp2.getChildren().add(historyChart);
+        SplitPane horizontalSplitPane = new SplitPane();
+        horizontalSplitPane.setOrientation(Orientation.HORIZONTAL);
+        horizontalSplitPane.getItems().addAll(sp1, sp2);
+        horizontalSplitPane.setDividerPositions(0.2f);
+        // tree / chart / option
+        final StackPane sp3 = new StackPane();
         OptionPane optionPane = new OptionPane();
-        sp2.getChildren().add(optionPane);
-        sp.getItems().addAll(sp1, sp2);
-        sp.setDividerPositions(0.5f);
-        StackPane root = new StackPane();
-        root.getChildren().add(sp);
+        sp3.getChildren().add(optionPane);
+        SplitPane verticalSplitPane = new SplitPane();
+        verticalSplitPane.setOrientation(Orientation.VERTICAL);
+        verticalSplitPane.getItems().addAll(horizontalSplitPane, sp3);
+        verticalSplitPane.setDividerPositions(0.6f);
+        verticalSplitPane.prefWidthProperty().bind(primaryStage.widthProperty());
+        verticalSplitPane.prefHeightProperty().bind(primaryStage.heightProperty());
+        // menu
+        MenuBar menuBar = new MenuBar();
+        Menu menuFile = new Menu("File");
+        Menu menuEdit = new Menu("Edit");
+        Menu menuView = new Menu("View");
+        menuBar.getMenus().addAll(menuFile, menuEdit, menuView);
+        menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
+
+        BorderPane root = new BorderPane();
+        root.setTop(menuBar);
+        root.setCenter(verticalSplitPane);
         Scene scene = new Scene(root, 800, 600);
         primaryStage.sizeToScene();
         primaryStage.setScene(scene);
