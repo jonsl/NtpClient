@@ -30,48 +30,14 @@ public class SystemUtils {
         return operatingSystemType;
     }
 
-    public List<Peer> getPeerList() {
-        try {
-            Process p = Runtime.getRuntime().exec("ntpq -pn");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            // skip header
-            reader.readLine();
-            reader.readLine();
-            // read peers list
-            String line;
-            ArrayList<Peer> peers = new ArrayList<>();
-            while ((line = reader.readLine()) != null) {
-                String strings[] = line.substring(1).split("\\s+");
-                if (strings.length != 10) {
-                    return null;
-                }
-                peers.add(new Peer(line.substring(0, 1), strings[0], strings[1], strings[2],
-                        strings[3], strings[4], strings[5], strings[6], strings[7], strings[8], strings[9]));
-            }
-            reader.close();
-            return peers;
-        } catch (Exception exception) {
-            System.err.println(exception.getLocalizedMessage());
-        }
-        return null;
-    }
-
     public ServiceInfo getServiceInfo(String serviceName) {
         try {
-            String command;
-            switch (operatingSystemType) {
-                case WINDOWS:
-                    command = "sc qc " + serviceName;
-                    break;
-                case LINUX:
-                    break;
-            }
-            String line;
             Process p = Runtime.getRuntime().exec("wmic service " + serviceName + " get " +
                     "Caption, Description, Name, StartMode, State, PathName /format:list");
             BufferedReader bri = new BufferedReader
                     (new InputStreamReader(p.getInputStream()));
             ServiceInfo serviceInfo = new ServiceInfo();
+            String line;
             while ((line = bri.readLine()) != null) {
                 serviceInfo = parseLine(line, serviceInfo);
                 System.out.println(line);
@@ -119,6 +85,31 @@ public class SystemUtils {
         return serviceInfo;
     }
 
+    public List<Peer> getPeerList() {
+        try {
+            Process p = Runtime.getRuntime().exec("ntpq -pn");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            // skip header
+            reader.readLine();
+            reader.readLine();
+            // read peers list
+            String line;
+            ArrayList<Peer> peers = new ArrayList<>();
+            while ((line = reader.readLine()) != null) {
+                String strings[] = line.substring(1).split("\\s+");
+                if (strings.length != 10) {
+                    return null;
+                }
+                peers.add(new Peer(line.substring(0, 1), strings[0], strings[1], strings[2],
+                        strings[3], strings[4], strings[5], strings[6], strings[7], strings[8], strings[9]));
+            }
+            reader.close();
+            return peers;
+        } catch (Exception exception) {
+            System.err.println(exception.getLocalizedMessage());
+        }
+        return null;
+    }
 
     public enum OperatingSystemType {UNKNOWN, WINDOWS, LINUX}
 
