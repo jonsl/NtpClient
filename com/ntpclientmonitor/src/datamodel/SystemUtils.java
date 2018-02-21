@@ -41,25 +41,12 @@ public class SystemUtils {
             String line;
             ArrayList<Peer> peers = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
-                Character selection = line.charAt(0);
                 String strings[] = line.substring(1).split("\\s+");
                 if (strings.length != 10) {
-                    throw new RuntimeException("wrong number of peer entries: " + strings.length);
+                    return null;
                 }
-                peers.add(new Peer(
-                                selection,
-                                strings[0],
-                                strings[1],
-                                Integer.parseInt(strings[2]),
-                                strings[3].charAt(0),
-                                Integer.parseInt(strings[4]),
-                                Integer.parseInt(strings[5]),
-                                Integer.parseInt(strings[6]),
-                                Double.parseDouble(strings[7]),
-                                Double.parseDouble(strings[8]),
-                                Double.parseDouble(strings[9])
-                        )
-                );
+                peers.add(new Peer(line.substring(0, 1), strings[0], strings[1], strings[2],
+                        strings[3], strings[4], strings[5], strings[6], strings[7], strings[8], strings[9]));
             }
             reader.close();
             return peers;
@@ -72,21 +59,21 @@ public class SystemUtils {
     public enum OperatingSystemType {UNKNOWN, WINDOWS, LINUX}
 
     public class Peer {
-        char selection;
+        String s;
         String remote;
         String refid;
-        int st;
-        char t;
-        int when;
-        int poll;
-        int reach;
-        double delay;
-        double offset;
-        double jitter;
+        String st;
+        String t;
+        String when;
+        String poll;
+        String reach;
+        String delay;
+        String offset;
+        String jitter;
 
-        Peer(char selection, String remote, String refid, int st, char t,
-             int when, int poll, int reach, double delay, double offset, double jitter) {
-            this.selection = selection;
+        Peer(String s, String remote, String refid, String st, String t,
+             String when, String poll, String reach, String delay, String offset, String jitter) {
+            this.s = s;
             this.remote = remote;
             this.refid = refid;
             this.st = st;
@@ -99,8 +86,8 @@ public class SystemUtils {
             this.jitter = jitter;
         }
 
-        public char getSelection() {
-            return selection;
+        public String getS() {
+            return s;
         }
 
         public String getRemote() {
@@ -111,35 +98,35 @@ public class SystemUtils {
             return refid;
         }
 
-        public int getSt() {
+        public String getSt() {
             return st;
         }
 
-        public char getT() {
+        public String getT() {
             return t;
         }
 
-        public int getWhen() {
+        public String getWhen() {
             return when;
         }
 
-        public int getPoll() {
+        public String getPoll() {
             return poll;
         }
 
-        public int getReach() {
+        public String getReach() {
             return reach;
         }
 
-        public double getDelay() {
+        public String getDelay() {
             return delay;
         }
 
-        public double getOffset() {
+        public String getOffset() {
             return offset;
         }
 
-        public double getJitter() {
+        public String getJitter() {
             return jitter;
         }
     }

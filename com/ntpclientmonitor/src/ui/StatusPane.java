@@ -2,8 +2,6 @@ package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.SystemUtils;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,17 +15,17 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-class PeersListPane extends BorderPane {
+class StatusPane extends BorderPane {
     private TableView<PeerRow> table = new TableView<>();
 
-    PeersListPane() {
+    StatusPane() {
         super();
 
-        TableColumn<PeerRow, String> sCol = new TableColumn<>("s");
+        TableColumn<PeerRow, String> sCol = new TableColumn<>("selection");
         sCol.setSortable(false);
         sCol.setPrefWidth(20);
         sCol.setMinWidth(20);
-        sCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("selection"));
+        sCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("s"));
         TableColumn<PeerRow, String> remoteCol = new TableColumn<>("remote");
         remoteCol.setSortable(false);
         remoteCol.setPrefWidth(100);
@@ -38,52 +36,53 @@ class PeersListPane extends BorderPane {
         refidCol.setPrefWidth(100);
         refidCol.setMinWidth(100);
         refidCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("refid"));
-        TableColumn<PeerRow, Integer> stratumCol = new TableColumn<>("stratum");
+        TableColumn<PeerRow, String> stratumCol = new TableColumn<>("stratum");
         stratumCol.setSortable(false);
         stratumCol.setPrefWidth(60);
         stratumCol.setMinWidth(20);
-        stratumCol.setCellValueFactory(new PropertyValueFactory<PeerRow, Integer>("st"));
+        stratumCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("st"));
         TableColumn<PeerRow, String> typeCol = new TableColumn<>("type");
         typeCol.setSortable(false);
         typeCol.setPrefWidth(60);
         typeCol.setMinWidth(50);
         typeCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("t"));
-        TableColumn<PeerRow, Integer> whenCol = new TableColumn<>("when");
+        TableColumn<PeerRow, String> whenCol = new TableColumn<>("when");
         whenCol.setSortable(false);
         whenCol.setPrefWidth(60);
         whenCol.setMinWidth(50);
-        whenCol.setCellValueFactory(new PropertyValueFactory<PeerRow, Integer>("when"));
-        TableColumn<PeerRow, Integer> pollCol = new TableColumn<>("poll");
+        whenCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("when"));
+        TableColumn<PeerRow, String> pollCol = new TableColumn<>("poll");
         pollCol.setSortable(false);
         pollCol.setPrefWidth(60);
         pollCol.setMinWidth(50);
-        pollCol.setCellValueFactory(new PropertyValueFactory<PeerRow, Integer>("poll"));
-        TableColumn<PeerRow, Integer> reachCol = new TableColumn<>("reach");
+        pollCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("poll"));
+        TableColumn<PeerRow, String> reachCol = new TableColumn<>("reach");
         reachCol.setSortable(false);
         reachCol.setPrefWidth(60);
         reachCol.setMinWidth(50);
-        reachCol.setCellValueFactory(new PropertyValueFactory<PeerRow, Integer>("reach"));
-        TableColumn<PeerRow, Double> delayCol = new TableColumn<>("delay");
+        reachCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("reach"));
+        TableColumn<PeerRow, String> delayCol = new TableColumn<>("delay");
         delayCol.setSortable(false);
         delayCol.setPrefWidth(60);
         delayCol.setMinWidth(50);
-        delayCol.setCellValueFactory(new PropertyValueFactory<PeerRow, Double>("delay"));
-        TableColumn<PeerRow, Double> offsetCol = new TableColumn<>("offset");
+        delayCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("delay"));
+        TableColumn<PeerRow, String> offsetCol = new TableColumn<>("offset");
         offsetCol.setSortable(false);
         offsetCol.setPrefWidth(60);
         offsetCol.setMinWidth(50);
-        offsetCol.setCellValueFactory(new PropertyValueFactory<PeerRow, Double>("offset"));
-        TableColumn<PeerRow, Double> jitterCol = new TableColumn<>("jitter");
+        offsetCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("offset"));
+        TableColumn<PeerRow, String> jitterCol = new TableColumn<>("jitter");
         jitterCol.setSortable(false);
         jitterCol.setPrefWidth(60);
         jitterCol.setMinWidth(50);
-        jitterCol.setCellValueFactory(new PropertyValueFactory<PeerRow, Double>("jitter"));
+        jitterCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("jitter"));
 
         table.getColumns().addAll(sCol, remoteCol, refidCol, stratumCol, typeCol,
                 whenCol, pollCol, reachCol, delayCol, offsetCol, jitterCol);
 
         table.setEditable(false);
         table.setSelectionModel(null);
+        table.setPrefHeight(150);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         setTop(table);
 
@@ -94,54 +93,71 @@ class PeersListPane extends BorderPane {
     }
 
     public static class PeerRow {
-        private final SimpleStringProperty selection;
+        private final SimpleStringProperty s;
         private final SimpleStringProperty remote;
         private final SimpleStringProperty refid;
-        private final SimpleIntegerProperty st;
+        private final SimpleStringProperty st;
         private final SimpleStringProperty t;
-        private final SimpleIntegerProperty when;
-        private final SimpleIntegerProperty poll;
-        private final SimpleIntegerProperty reach;
-        private final SimpleDoubleProperty delay;
-        private final SimpleDoubleProperty offset;
-        private final SimpleDoubleProperty jitter;
+        private final SimpleStringProperty when;
+        private final SimpleStringProperty poll;
+        private final SimpleStringProperty reach;
+        private final SimpleStringProperty delay;
+        private final SimpleStringProperty offset;
+        private final SimpleStringProperty jitter;
 
         PeerRow(SystemUtils.Peer peer) {
-            this.selection = new SimpleStringProperty(Character.toString(peer.getSelection()));
+            this.s = new SimpleStringProperty(peer.getS());
             this.remote = new SimpleStringProperty(peer.getRemote());
             this.refid = new SimpleStringProperty(peer.getRefid());
-            this.st = new SimpleIntegerProperty(peer.getSt());
+            this.st = new SimpleStringProperty(peer.getSt());
+            // Type (u: unicast or manycast client, b: broadcast or multicast client, l: local reference clock,
+            // s: symmetric peer, A: manycast server, B: broadcast server, M: multicast server
             switch (peer.getT()) {
-                case 'l':
-                    this.t = new SimpleStringProperty("local");
-                    break;
-                case 'u':
+                case "u":
                     this.t = new SimpleStringProperty("unicast");
                     break;
-                case 'm':
-                    this.t = new SimpleStringProperty("multicast");
-                    break;
-                case 'b':
+                case "b":
                     this.t = new SimpleStringProperty("broadcast");
                     break;
+                case "l":
+                    this.t = new SimpleStringProperty("local");
+                    break;
+                case "s":
+                    this.t = new SimpleStringProperty("symmetric");
+                    break;
+                case "A":
+                    this.t = new SimpleStringProperty("manycast");
+                    break;
+                case "B":
+                    this.t = new SimpleStringProperty("broadcast");
+                    break;
+                case "M":
+                    this.t = new SimpleStringProperty("multicast");
+                    break;
+                case "p":
+                    this.t = new SimpleStringProperty("pool");
+                    break;
+                case "-":
+                    this.t = new SimpleStringProperty("netaddr");
+                    break;
                 default:
-                    this.t = new SimpleStringProperty(Character.toString(peer.getT()));
+                    this.t = new SimpleStringProperty(peer.getT());
                     break;
             }
-            this.when = new SimpleIntegerProperty(peer.getWhen());
-            this.poll = new SimpleIntegerProperty(peer.getPoll());
-            this.reach = new SimpleIntegerProperty(peer.getReach());
-            this.delay = new SimpleDoubleProperty(peer.getDelay());
-            this.offset = new SimpleDoubleProperty(peer.getOffset());
-            this.jitter = new SimpleDoubleProperty(peer.getJitter());
+            this.when = new SimpleStringProperty(peer.getWhen());
+            this.poll = new SimpleStringProperty(peer.getPoll());
+            this.reach = new SimpleStringProperty(peer.getReach());
+            this.delay = new SimpleStringProperty(peer.getDelay());
+            this.offset = new SimpleStringProperty(peer.getOffset());
+            this.jitter = new SimpleStringProperty(peer.getJitter());
         }
 
         public String getSelection() {
-            return selection.get();
+            return s.get();
         }
 
-        public SimpleStringProperty selectionProperty() {
-            return selection;
+        public SimpleStringProperty sProperty() {
+            return s;
         }
 
         public String getRemote() {
@@ -160,11 +176,11 @@ class PeersListPane extends BorderPane {
             return refid;
         }
 
-        public int getSt() {
+        public String getSt() {
             return st.get();
         }
 
-        public SimpleIntegerProperty stProperty() {
+        public SimpleStringProperty stProperty() {
             return st;
         }
 
@@ -176,51 +192,51 @@ class PeersListPane extends BorderPane {
             return t;
         }
 
-        public int getWhen() {
+        public String getWhen() {
             return when.get();
         }
 
-        public SimpleIntegerProperty whenProperty() {
+        public SimpleStringProperty whenProperty() {
             return when;
         }
 
-        public int getPoll() {
+        public String getPoll() {
             return poll.get();
         }
 
-        public SimpleIntegerProperty pollProperty() {
+        public SimpleStringProperty pollProperty() {
             return poll;
         }
 
-        public int getReach() {
+        public String getReach() {
             return reach.get();
         }
 
-        public SimpleIntegerProperty reachProperty() {
+        public SimpleStringProperty reachProperty() {
             return reach;
         }
 
-        public double getDelay() {
+        public String getDelay() {
             return delay.get();
         }
 
-        public SimpleDoubleProperty delayProperty() {
+        public SimpleStringProperty delayProperty() {
             return delay;
         }
 
-        public double getOffset() {
+        public String getOffset() {
             return offset.get();
         }
 
-        public SimpleDoubleProperty offsetProperty() {
+        public SimpleStringProperty offsetProperty() {
             return offset;
         }
 
-        public double getJitter() {
+        public String getJitter() {
             return jitter.get();
         }
 
-        public SimpleDoubleProperty jitterProperty() {
+        public SimpleStringProperty jitterProperty() {
             return jitter;
         }
     }
