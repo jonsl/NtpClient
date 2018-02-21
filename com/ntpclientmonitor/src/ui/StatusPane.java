@@ -21,57 +21,70 @@ class StatusPane extends BorderPane {
     StatusPane() {
         super();
 
-        TableColumn<PeerRow, String> sCol = new TableColumn<>("selection");
+        final String columnStyle = "-fx-alignment:center-right; -fx-padding: 2px; -fx-font-size:12px;";
+
+        TableColumn<PeerRow, String> sCol = new TableColumn<>("select");
+        sCol.setStyle("-fx-alignment:center");
         sCol.setSortable(false);
-        sCol.setPrefWidth(20);
-        sCol.setMinWidth(20);
+        sCol.setPrefWidth(30);
+        sCol.setMinWidth(30);
         sCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("s"));
         TableColumn<PeerRow, String> remoteCol = new TableColumn<>("remote");
+        remoteCol.setStyle(columnStyle);
         remoteCol.setSortable(false);
         remoteCol.setPrefWidth(100);
         remoteCol.setMinWidth(100);
         remoteCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("remote"));
         TableColumn<PeerRow, String> refidCol = new TableColumn<>("refid");
+        refidCol.setStyle(columnStyle);
         refidCol.setSortable(false);
         refidCol.setPrefWidth(100);
         refidCol.setMinWidth(100);
         refidCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("refid"));
         TableColumn<PeerRow, String> stratumCol = new TableColumn<>("stratum");
+        stratumCol.setStyle(columnStyle);
         stratumCol.setSortable(false);
-        stratumCol.setPrefWidth(60);
-        stratumCol.setMinWidth(20);
+        stratumCol.setPrefWidth(40);
+        stratumCol.setMinWidth(40);
         stratumCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("st"));
         TableColumn<PeerRow, String> typeCol = new TableColumn<>("type");
+        typeCol.setStyle(columnStyle);
         typeCol.setSortable(false);
         typeCol.setPrefWidth(60);
         typeCol.setMinWidth(50);
         typeCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("t"));
         TableColumn<PeerRow, String> whenCol = new TableColumn<>("when");
+        whenCol.setStyle(columnStyle);
         whenCol.setSortable(false);
         whenCol.setPrefWidth(60);
         whenCol.setMinWidth(50);
         whenCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("when"));
         TableColumn<PeerRow, String> pollCol = new TableColumn<>("poll");
+        pollCol.setStyle(columnStyle);
         pollCol.setSortable(false);
         pollCol.setPrefWidth(60);
         pollCol.setMinWidth(50);
         pollCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("poll"));
         TableColumn<PeerRow, String> reachCol = new TableColumn<>("reach");
+        reachCol.setStyle(columnStyle);
         reachCol.setSortable(false);
         reachCol.setPrefWidth(60);
         reachCol.setMinWidth(50);
         reachCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("reach"));
         TableColumn<PeerRow, String> delayCol = new TableColumn<>("delay");
+        delayCol.setStyle(columnStyle);
         delayCol.setSortable(false);
         delayCol.setPrefWidth(60);
         delayCol.setMinWidth(50);
         delayCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("delay"));
         TableColumn<PeerRow, String> offsetCol = new TableColumn<>("offset");
+        offsetCol.setStyle(columnStyle);
         offsetCol.setSortable(false);
         offsetCol.setPrefWidth(60);
         offsetCol.setMinWidth(50);
         offsetCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("offset"));
         TableColumn<PeerRow, String> jitterCol = new TableColumn<>("jitter");
+        jitterCol.setStyle(columnStyle);
         jitterCol.setSortable(false);
         jitterCol.setPrefWidth(60);
         jitterCol.setMinWidth(50);
@@ -80,9 +93,12 @@ class StatusPane extends BorderPane {
         table.getColumns().addAll(sCol, remoteCol, refidCol, stratumCol, typeCol,
                 whenCol, pollCol, reachCol, delayCol, offsetCol, jitterCol);
 
+        final String tableStyle = ".table-cell { -fx-font-weight:normal; -fx-font-size:12px; }";
+
         table.setEditable(false);
         table.setSelectionModel(null);
         table.setPrefHeight(150);
+        table.setStyle(tableStyle);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         setTop(table);
 

@@ -1,6 +1,7 @@
 package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.DataModel;
+import com.ntpclientmonitor.src.datamodel.SystemUtils;
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;

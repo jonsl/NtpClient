@@ -56,7 +56,104 @@ public class SystemUtils {
         return null;
     }
 
+    public ServiceInfo getServiceInfo(String serviceName) {
+        try {
+            String command;
+            switch (operatingSystemType) {
+                case WINDOWS:
+                    command = "sc qc " + serviceName;
+                    break;
+                case LINUX:
+                    break;
+            }
+            String line;
+            Process p = Runtime.getRuntime().exec("wmic service " + serviceName + " get " +
+                    "Caption, Description, Name, StartMode, State, PathName /format:list");
+            BufferedReader bri = new BufferedReader
+                    (new InputStreamReader(p.getInputStream()));
+            ServiceInfo serviceInfo = new ServiceInfo();
+            while ((line = bri.readLine()) != null) {
+                serviceInfo = parseLine(line, serviceInfo);
+                System.out.println(line);
+            }
+            bri.close();
+            // print any error info
+            BufferedReader bre = new BufferedReader
+                    (new InputStreamReader(p.getErrorStream()));
+            while ((line = bre.readLine()) != null) {
+                System.err.println(line);
+            }
+            bre.close();
+            p.waitFor();
+            return serviceInfo;
+        } catch (Exception exception) {
+            System.err.println("exception: " + exception.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    private ServiceInfo parseLine(String line, ServiceInfo serviceInfo) {
+        if (line.length() > 0) {
+            String[] tokens = line.split("=");
+            switch (tokens[0]) {
+                case "Caption":
+                    serviceInfo.caption = tokens[1];
+                    break;
+                case "Description":
+                    serviceInfo.description = tokens[1];
+                    break;
+                case "Name":
+                    serviceInfo.name = tokens[1];
+                    break;
+                case "PathName":
+                    serviceInfo.pathName = tokens[1];
+                    break;
+                case "StartMode":
+                    serviceInfo.startMode = tokens[1];
+                    break;
+                case "State":
+                    serviceInfo.state = tokens[1];
+                    break;
+            }
+        }
+        return serviceInfo;
+    }
+
+
     public enum OperatingSystemType {UNKNOWN, WINDOWS, LINUX}
+
+    public class ServiceInfo {
+        String name;
+        String caption;
+        String description;
+        String pathName;
+        String startMode;
+        String state;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getCaption() {
+            return caption;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getPathName() {
+            return pathName;
+        }
+
+        public String getStartMode() {
+            return startMode;
+        }
+
+        public String getState() {
+            return state;
+        }
+    }
 
     public class Peer {
         String s;

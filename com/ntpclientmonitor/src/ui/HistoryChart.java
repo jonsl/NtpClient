@@ -16,12 +16,15 @@ import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import java.nio.file.WatchService;
 import java.util.Date;
 
 class HistoryChart extends StackPane implements Observer {
     private TimeSeriesCollection timeDataset = new TimeSeriesCollection();
     private JFreeChart chart;
     private double windowSizeMillis = 1000.0 * 60.0 * 10.0;
+    //
+    private WatchService watchService;
 
     HistoryChart() {
         super();

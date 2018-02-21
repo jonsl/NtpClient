@@ -13,6 +13,8 @@ class OptionPane extends TabPane {
 
         Tab serviceTab = new Tab();
         serviceTab.setText("Service");
+        ServicePane servicePane = new ServicePane();
+        serviceTab.setContent(servicePane);
         getTabs().add(serviceTab);
 
         Tab statusTab = new Tab();
