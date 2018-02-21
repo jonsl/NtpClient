@@ -228,10 +228,9 @@ class PeersListPane extends BorderPane {
     class UpdatePollTask extends TimerTask {
         @Override
         public void run() {
-            SystemUtils systemUtils = new SystemUtils();
-            List<SystemUtils.Peer> peers = systemUtils.getPeerList();
             Platform.runLater(() -> {
                 ObservableList<PeerRow> data = FXCollections.observableArrayList();
+                List<SystemUtils.Peer> peers = SystemUtils.getInstance().getPeerList();
                 for (SystemUtils.Peer peer : peers) {
                     data.add(new PeerRow(peer));
                 }

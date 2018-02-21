@@ -1,7 +1,6 @@
 package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.DataModel;
-import com.ntpclientmonitor.src.datamodel.SystemUtils;
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -12,8 +11,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.util.List;
-
 public class Main extends Application {
     public static void main(String[] args) {
         launch(Main.class, args);
@@ -22,10 +19,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("NTP Client Monitor");
-
-        SystemUtils systemUtils = new SystemUtils();
-        List<SystemUtils.Peer> peers = systemUtils.getPeerList();
-
         // tree / chart pane
         final StackPane sp1 = new StackPane();
         final StackPane sp2 = new StackPane();

@@ -5,18 +5,29 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-enum OsType {WINDOWS, LINUX};
-
 public class SystemUtils {
+    private static SystemUtils ourInstance = new SystemUtils();
+    //
+    private OperatingSystemType operatingSystemType;
 
-    public String getOsCommandPrefix() {
+    private SystemUtils() {
+        // determine os type
         String typeString = System.getProperty("os.name");
         if (typeString.startsWith("Linux")) {
-            return "";
+            this.operatingSystemType = OperatingSystemType.LINUX;
         } else if (typeString.startsWith("Windows")) {
-            return "cmd /c ";
+            this.operatingSystemType = OperatingSystemType.WINDOWS;
+        } else {
+            this.operatingSystemType = OperatingSystemType.UNKNOWN;
         }
-        return null;
+    }
+
+    public static SystemUtils getInstance() {
+        return ourInstance;
+    }
+
+    public OperatingSystemType getOperatingSystemType() {
+        return operatingSystemType;
     }
 
     public List<Peer> getPeerList() {
@@ -57,6 +68,8 @@ public class SystemUtils {
         }
         return null;
     }
+
+    public enum OperatingSystemType {UNKNOWN, WINDOWS, LINUX}
 
     public class Peer {
         char selection;
