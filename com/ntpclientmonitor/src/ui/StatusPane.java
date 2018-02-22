@@ -5,21 +5,42 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
 
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-class StatusPane extends BorderPane {
+class StatusPane extends GridPane {
     private TableView<PeerRow> table = new TableView<>();
 
     StatusPane() {
         super();
+
+        setPadding(new Insets(10, 10, 10, 10));
+
+        setHgap(10);
+        setVgap(10);
+
+        double[] xPercents = {10, 10, 10, 10, 10, 10, 10, 10, 10, 10};
+        for (double xPercent : xPercents) {
+            ColumnConstraints col = new ColumnConstraints();
+            col.setPercentWidth(xPercent);
+            getColumnConstraints().add(col);
+        }
+        double[] yPercents = {20, 20, 20, 20, 20};
+        for (double yPercent : yPercents) {
+            RowConstraints row = new RowConstraints();
+            row.setPercentHeight(yPercent);
+            getRowConstraints().add(row);
+        }
 
         final String columnStyle = "-fx-alignment:center-right; -fx-padding: 2px; -fx-font-size:12px;";
 
@@ -93,16 +114,14 @@ class StatusPane extends BorderPane {
         table.getColumns().addAll(sCol, remoteCol, refidCol, stratumCol, typeCol,
                 whenCol, pollCol, reachCol, delayCol, offsetCol, jitterCol);
 
-        final String tableStyle = ".table-cell { -fx-font-weight:normal; -fx-font-size:12px; }";
+//        final String tableStyle = ".table-cell { -fx-font-weight:normal; -fx-font-size:12px; }";
 
         table.setEditable(false);
         table.setSelectionModel(null);
         table.setPrefHeight(150);
-        table.setStyle(tableStyle);
+//        table.setStyle(tableStyle);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        setTop(table);
-
-        setBottom(new GridPane());
+        add(table, 0, 0, 10, 4);
 
         final Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(new UpdatePollTask(), 0, 10000);

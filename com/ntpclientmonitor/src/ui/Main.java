@@ -22,6 +22,9 @@ public class Main extends Application {
         primaryStage.setTitle("NTP Client Monitor");
         // tree / chart pane
         final StackPane sp1 = new StackPane();
+        sp1.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        FilePane filePane = new FilePane();
+        sp1.getChildren().add(filePane);
         final StackPane sp2 = new StackPane();
         HistoryChart historyChart = new HistoryChart();
         sp2.getChildren().add(historyChart);

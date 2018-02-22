@@ -40,7 +40,6 @@ public class SystemUtils {
             String line;
             while ((line = bri.readLine()) != null) {
                 serviceInfo = parseLine(line, serviceInfo);
-                System.out.println(line);
             }
             bri.close();
             // print any error info
