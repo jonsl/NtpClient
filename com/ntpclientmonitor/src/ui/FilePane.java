@@ -1,33 +1,38 @@
 package com.ntpclientmonitor.src.ui;
 
+import com.ntpclientmonitor.src.datamodel.DataModel;
+import com.ntpclientmonitor.src.datamodel.HistoryData;
+import com.ntpclientmonitor.src.datamodel.Observer;
 import com.sun.javafx.scene.control.skin.TreeViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.temporal.JulianFields;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class FilePane extends GridPane {
     private static Image folderCollapseImage = new Image("file:resources/folder.png");
-
     private static Image folderExpandImage = new Image("file:resources/folder-open.png");
-
     private static Image fileImage = new Image("file:resources/text-x-generic.png");
-
-
+    private ArrayList<Observer> observers = new ArrayList<>();
     private TreeView<FileInfo> treeView;
 
     public FilePane() {
@@ -60,7 +65,7 @@ public class FilePane extends GridPane {
         }
 
         TreeItem<FileInfo> rootNode = new TreeItem<>(new FileInfo(hostName));
-        //create the tree view
+        // create the tree view with
         treeView = new TreeView<FileInfo>(rootNode) {
             @Override
             protected Skin createDefaultSkin() {
@@ -68,6 +73,48 @@ public class FilePane extends GridPane {
             }
         };
         treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        treeView.setOnKeyPressed(event -> {
+            KeyCode keyCode = event.getCode();
+            if (keyCode.equals(KeyCode.ENTER)) {
+                //
+                try {
+                    ArrayList<HistoryData> historyData = new ArrayList<>();
+
+                    ObservableList<TreeItem<FileInfo>> items = treeView.getSelectionModel().getSelectedItems();
+                    for (TreeItem<FileInfo> item : items) {
+
+                        BufferedReader reader = new BufferedReader(new FileReader(item.getValue().getFile()));
+                        String line;
+
+                        // repeat until all lines read
+                        while ((line = reader.readLine()) != null) {
+                            String[] tokens = line.trim().split("\\s+");
+                            long modifiedJulianDay = Long.parseLong(tokens[0]);
+                            double secondOffset = Double.parseDouble(tokens[1]);
+
+                            LocalDate localDate = LocalDate.MIN.with(JulianFields.MODIFIED_JULIAN_DAY, modifiedJulianDay);
+                            Date modifiedJulianDayDate = Date.from(localDate.atStartOfDay().toInstant(ZoneOffset.UTC));
+                            long time = modifiedJulianDayDate.getTime() + (long) (secondOffset * 1000.0);
+                            Date date = new Date(time);
+
+                            double timeOffset = Double.parseDouble(tokens[2]);
+                            double frequencyOffsetPpm = Double.parseDouble(tokens[3]);
+                            double rmsJitter = Double.parseDouble(tokens[4]);
+                            double allanDeviation = Double.parseDouble(tokens[5]);
+                            int clockDiscipline = Integer.parseInt(tokens[6]);
+
+                            historyData.add(new HistoryData(date, timeOffset,
+                                    frequencyOffsetPpm, rmsJitter, allanDeviation, clockDiscipline));
+                        }
+                        reader.close();
+                    }
+                    DataModel.getInstance().getHistoryDataGroup().setHistoryData(historyData);
+
+                } catch (Exception exception) {
+                    System.err.println("exception: " + exception.getLocalizedMessage());
+                }
+            }
+        });
 
         Iterable<Path> rootDirectories = FileSystems.getDefault().getRootDirectories();
         for (Path name : rootDirectories) {
@@ -82,6 +129,7 @@ public class FilePane extends GridPane {
 
     /**
      * REF: https://stackoverflow.com/questions/29402412/how-to-get-javafx-treeview-to-behave-consistently-upon-node-expansion
+     * stop scroll jump expanding a node when scrolled to the bottom of the tree
      */
     class TTreeViewSkin<T extends IndexedCell> extends TreeViewSkin<T> {
         TTreeViewSkin(TreeView treeView) {
@@ -148,26 +196,6 @@ public class FilePane extends GridPane {
 
         SimpleFileTreeItem(FileInfo file) {
             super(file);
-
-//            if (Files.isDirectory(file.getFile().toPath())) {
-//                this.setGraphic(new ImageView(folderCollapseImage));
-//            } else {
-//                this.setGraphic(new ImageView(fileImage));
-//            }
-
-//            addEventHandler(TreeItem.branchCollapsedEvent(), (EventHandler<TreeModificationEvent<FileInfo>>) event -> {
-//                TreeItem<FileInfo> source = event.getSource();
-//                if (source.getValue().getFile().isDirectory() && !source.isExpanded()) {
-//                    source.setGraphic(new ImageView(folderCollapseImage));
-//                }
-//            });
-//
-//            addEventHandler(TreeItem.branchExpandedEvent(), (EventHandler<TreeModificationEvent<FileInfo>>) event -> {
-//                TreeItem<FileInfo> source = event.getSource();
-//                if (source.getValue().getFile().isDirectory() && source.isExpanded()) {
-//                    source.setGraphic(new ImageView(folderExpandImage));
-//                }
-//            });
         }
 
         @Override

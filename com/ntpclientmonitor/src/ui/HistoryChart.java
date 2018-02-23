@@ -1,26 +1,34 @@
 package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.DataModel;
+import com.ntpclientmonitor.src.datamodel.HistoryData;
 import com.ntpclientmonitor.src.datamodel.HistoryDataGroup;
 import com.ntpclientmonitor.src.datamodel.Observer;
 import javafx.scene.layout.StackPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.fx.ChartViewer;
 import org.jfree.chart.fx.interaction.MouseHandlerFX;
 import org.jfree.chart.fx.interaction.PanHandlerFX;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
+import org.jfree.chart.renderer.xy.SamplingXYLineRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import java.awt.*;
 import java.nio.file.WatchService;
 import java.util.Date;
 
 class HistoryChart extends StackPane implements Observer {
-    private TimeSeriesCollection timeDataset = new TimeSeriesCollection();
+    private TimeSeriesCollection offsetDataset = new TimeSeriesCollection();
+    private TimeSeriesCollection frequencyDataset = new TimeSeriesCollection();
     private JFreeChart chart;
     private double windowSizeMillis = 1000.0 * 60.0 * 10.0;
     //
@@ -30,15 +38,37 @@ class HistoryChart extends StackPane implements Observer {
         super();
         DataModel.getInstance().getHistoryDataGroup().addObserver(this);
 
-        this.chart = ChartFactory.createTimeSeriesChart(
-                null,
-                "time",
-                "offset",
-                timeDataset,
-                true,
-                false,
-                false);
+        XYPlot plot = new XYPlot();
+        plot.setDataset(0, offsetDataset);
+        plot.setDataset(1, frequencyDataset);
 
+        XYLineAndShapeRenderer xyLineAndShapeRenderer0 = new XYLineAndShapeRenderer();
+        xyLineAndShapeRenderer0.setDrawSeriesLineAsPath(true);
+        xyLineAndShapeRenderer0.setSeriesPaint(0, Color.DARK_GRAY);
+        xyLineAndShapeRenderer0.setSeriesPaint(1, Color.LIGHT_GRAY);
+        xyLineAndShapeRenderer0.setSeriesShapesVisible(0, false);
+        xyLineAndShapeRenderer0.setSeriesShapesVisible(1, false);
+        plot.setRenderer(0, xyLineAndShapeRenderer0);
+
+        XYLineAndShapeRenderer xyLineAndShapeRenderer1 = new XYLineAndShapeRenderer();
+        xyLineAndShapeRenderer1.setDrawSeriesLineAsPath(true);
+        xyLineAndShapeRenderer1.setSeriesPaint(0, Color.RED);
+        xyLineAndShapeRenderer1.setSeriesPaint(1, Color.PINK);
+        xyLineAndShapeRenderer1.setSeriesShapesVisible(0, false);
+        xyLineAndShapeRenderer1.setSeriesShapesVisible(1, false);
+        plot.setRenderer(1, xyLineAndShapeRenderer1);
+
+        plot.setRangeAxis(0, new NumberAxis("seconds"));
+        plot.setRangeAxis(1, new NumberAxis("ppm"));
+        plot.setDomainAxis(new DateAxis("time"));
+
+        plot.mapDatasetToRangeAxis(0, 0);
+        plot.mapDatasetToRangeAxis(1, 1);
+        // set pannable on both axes
+        plot.setDomainPannable(true);
+        plot.setRangePannable(true);
+
+        this.chart = new JFreeChart(null, null, plot, true);
         ChartViewer chartViewer = new ChartViewer(chart);
 
         // remove default pan handler
@@ -52,42 +82,39 @@ class HistoryChart extends StackPane implements Observer {
         chartViewer.getCanvas().setRangeZoomable(true);
         // add to pane
         this.getChildren().add(chartViewer);
-        // set pannable on both axes
-        XYPlot plot = (XYPlot) chart.getPlot();
-        plot.setDomainPannable(true);
-        plot.setRangePannable(true);
     }
 
     @Override
     public void onNotify() {
-        TimeSeries roundTripTimeSeries = new TimeSeries("round trip time");
-        TimeSeries offsetTimeSeries = new TimeSeries("offset time");
+        TimeSeries offsetTimeSeries = new TimeSeries("offset (sec)");
+        TimeSeries frequencyOffsetPpmTimeSeries = new TimeSeries("offset (ppm)");
+        TimeSeries rmsJitterSeries = new TimeSeries("rms jitter (sec)");
+        TimeSeries allanDeviationSeries = new TimeSeries("allan deviation (ppm)");
 
         Date date = new Date();
-        for (HistoryDataGroup.HistoryEntry historyEntry : DataModel.getInstance().getHistoryDataGroup().getHistoryEntries()) {
-            long currentTime = (long) (historyEntry.getCurrentTime() - 2208988800L) * 1000L;
-            date.setTime(currentTime);
-            Second second = new Second(date);
-            offsetTimeSeries.addOrUpdate(second, historyEntry.getTimeOffset());
-            roundTripTimeSeries.addOrUpdate(second, historyEntry.getRoundTripDelay());
+        for (HistoryData historyData : DataModel.getInstance().getHistoryDataGroup().getHistoryData()) {
+            Second second = new Second(historyData.getDate());
+            offsetTimeSeries.addOrUpdate(second, historyData.getTimeOffset());
+            frequencyOffsetPpmTimeSeries.addOrUpdate(second, historyData.getFrequencyOffsetPpm());
+            rmsJitterSeries.addOrUpdate(second, historyData.getRmsJitter());
+            allanDeviationSeries.addOrUpdate(second, historyData.getAllanDeviation());
         }
 
-        this.timeDataset.removeAllSeries();
-        this.timeDataset.addSeries(offsetTimeSeries);
-        this.timeDataset.addSeries(roundTripTimeSeries);
+        this.offsetDataset.removeAllSeries();
+        this.offsetDataset.addSeries(offsetTimeSeries);
+        this.offsetDataset.addSeries(rmsJitterSeries);
+        this.frequencyDataset.removeAllSeries();
+        this.frequencyDataset.addSeries(frequencyOffsetPpmTimeSeries);
+        this.frequencyDataset.addSeries(allanDeviationSeries);
 
-        final double MinWindowSizeMillis = 1000.0 * 60.0 * 10.0;
-        // update axes range
-        Range domainRange = timeDataset.getDomainBounds(true);
-        windowSizeMillis = Math.max(
-                Math.min(windowSizeMillis, domainRange.getUpperBound() - domainRange.getLowerBound()),
-                MinWindowSizeMillis
-        );
         XYPlot plot = (XYPlot) chart.getPlot();
-        DateAxis dateAxis = (DateAxis) plot.getDomainAxis();
-        dateAxis.setRange(new Range(domainRange.getUpperBound() - windowSizeMillis, domainRange.getUpperBound()));
-        plot.getRangeAxis().setAutoRange(false);
-        plot.getRangeAxis().setAutoRange(true);
+        plot.getDomainAxis().setAutoRange(false);
+        plot.getDomainAxis().setAutoRange(true);
+
+        plot.getRangeAxis(0).setAutoRange(false);
+        plot.getRangeAxis(0).setAutoRange(true);
+        plot.getRangeAxis(1).setAutoRange(false);
+        plot.getRangeAxis(1).setAutoRange(true);
 
         chart.fireChartChanged();
     }

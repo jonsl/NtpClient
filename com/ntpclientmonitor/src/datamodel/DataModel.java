@@ -79,20 +79,6 @@ public class DataModel {
         }
     }
 
-    public boolean hasValidHistoryEntries() {
-        return (DataModel.getInstance().getHistoryDataGroup().getHistoryEntries().size() > 1);
-    }
-
-    public HistoryDataGroup.HistoryEntry getFirstHistoryEntry() {
-        return DataModel.getInstance().getHistoryDataGroup().getHistoryEntries().get(0);
-    }
-
-    public HistoryDataGroup.HistoryEntry getLastHistoryEntry() {
-        return DataModel.getInstance().getHistoryDataGroup().getHistoryEntries().get(
-                DataModel.getInstance().getHistoryDataGroup().getHistoryEntries().size() - 1
-        );
-    }
-
     public boolean hasValidOptionMap() {
         return (DataModel.getInstance().getOptionDataGroup().getOptionMap().size() > 1);
     }
