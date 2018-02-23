@@ -13,7 +13,6 @@ public class DataModel {
     private static String dbFileName = "ntpClientMonitor.db";
     private final HistoryDataGroup historyDataGroup = new HistoryDataGroup();
     private final OptionDataGroup optionDataGroup = new OptionDataGroup();
-    private final ServerDataGroup serverDataGroup = new ServerDataGroup();
     // application data
     private int selectedServerId = -1;
     // data groups
@@ -22,7 +21,6 @@ public class DataModel {
     private Connection connection;
 
     protected DataModel() {
-
     }
 
     public static DataModel getInstance() {
@@ -49,10 +47,6 @@ public class DataModel {
         return optionDataGroup;
     }
 
-    public synchronized ServerDataGroup getServerDataGroup() {
-        return serverDataGroup;
-    }
-
     /**
      * connect to the database and set up observers
      */
@@ -66,8 +60,6 @@ public class DataModel {
             // add data groups
             dataGroups.add(historyDataGroup);
             dataGroups.add(optionDataGroup);
-            DataModel.getInstance().setSelectedServerId(193);
-            dataGroups.add(serverDataGroup);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -88,15 +80,5 @@ public class DataModel {
             return DataModel.getInstance().getOptionDataGroup().getOptionMap().get(option);
         }
         return null;
-    }
-
-    public boolean hasValidServerMap() {
-        return (DataModel.getInstance().getServerDataGroup().getServerMap().size() > 1);
-    }
-
-    public ServerDataGroup.ServerEntry getSelectedServer() {
-        return DataModel.getInstance().getServerDataGroup().getServerMap().get(
-                DataModel.getInstance().getSelectedServerId()
-        );
     }
 }
