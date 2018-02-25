@@ -1,7 +1,5 @@
 package com.ntpclientmonitor.src.datamodel;
 
-import com.sun.istack.internal.NotNull;
-
 public class CommandExecutor {
     private final String command;
 
@@ -9,13 +7,19 @@ public class CommandExecutor {
         this.command = command;
     }
 
-    public int exec(@NotNull final StreamLineParser inputParser) {
+    public int exec(StreamLineParser inputParser, StreamLineParser errorParser) {
         try {
             Runtime rt = Runtime.getRuntime();
             Process proc = rt.exec(command);
             // init parsers
+            if (inputParser == null) {
+                inputParser = new StreamLineParser("OUT");
+            }
             inputParser.setInputStream(proc.getInputStream());
-            StreamLineParser errorParser = new StreamLineParser(proc.getErrorStream(), "ERROR");
+            if (errorParser == null) {
+                errorParser = new StreamLineParser("ERROR");
+            }
+            errorParser.setInputStream(proc.getErrorStream());
             // start parsers
             inputParser.start();
             errorParser.start();

@@ -2,8 +2,6 @@ package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.DataModel;
 import com.ntpclientmonitor.src.datamodel.HistoryData;
-import com.sun.javafx.scene.control.skin.TreeViewSkin;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -46,12 +44,12 @@ public class FilePane extends VBox {
 
         TreeItem<FileInfo> rootNode = new TreeItem<>(new FileInfo(hostName));
         // create the tree view with
-        treeView = new TreeView<FileInfo>(rootNode) {
-            @Override
-            protected Skin createDefaultSkin() {
-                return new TTreeViewSkin(this);
-            }
-        };
+        treeView = new TreeView<FileInfo>(rootNode);// {
+//            @Override
+//            protected Skin createDefaultSkin() {
+//                return new TTreeViewSkin(this);
+//            }
+//        };
         treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         treeView.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -79,34 +77,39 @@ public class FilePane extends VBox {
     private void updateHistoryData(boolean newSelection) {
         //
         try {
-            ArrayList<HistoryData> historyData = new ArrayList<>();
-            for (TreeItem<FileInfo> item : selectedItems) {
-                BufferedReader reader = new BufferedReader(new FileReader(item.getValue().getFile()));
-                String line;
+            if (selectedItems != null) {
+                ArrayList<HistoryData> historyData = new ArrayList<>();
+                for (TreeItem<FileInfo> item : selectedItems) {
+                    if (item == null || !item.getValue().getFile().isFile()) {
+                        // skip non-file entries
+                        continue;
+                    }
+                    BufferedReader reader = new BufferedReader(new FileReader(item.getValue().getFile()));
+                    String line;
+                    // repeat until all lines read
+                    while ((line = reader.readLine()) != null) {
+                        String[] tokens = line.trim().split("\\s+");
+                        long modifiedJulianDay = Long.parseLong(tokens[0]);
+                        double secondOffset = Double.parseDouble(tokens[1]);
 
-                // repeat until all lines read
-                while ((line = reader.readLine()) != null) {
-                    String[] tokens = line.trim().split("\\s+");
-                    long modifiedJulianDay = Long.parseLong(tokens[0]);
-                    double secondOffset = Double.parseDouble(tokens[1]);
+                        LocalDate localDate = LocalDate.MIN.with(JulianFields.MODIFIED_JULIAN_DAY, modifiedJulianDay);
+                        Date modifiedJulianDayDate = Date.from(localDate.atStartOfDay().toInstant(ZoneOffset.UTC));
+                        long time = modifiedJulianDayDate.getTime() + (long) (secondOffset * 1000.0);
+                        Date date = new Date(time);
 
-                    LocalDate localDate = LocalDate.MIN.with(JulianFields.MODIFIED_JULIAN_DAY, modifiedJulianDay);
-                    Date modifiedJulianDayDate = Date.from(localDate.atStartOfDay().toInstant(ZoneOffset.UTC));
-                    long time = modifiedJulianDayDate.getTime() + (long) (secondOffset * 1000.0);
-                    Date date = new Date(time);
+                        double timeOffset = Double.parseDouble(tokens[2]);
+                        double frequencyOffsetPpm = Double.parseDouble(tokens[3]);
+                        double rmsJitter = Double.parseDouble(tokens[4]);
+                        double allanDeviation = Double.parseDouble(tokens[5]);
+                        int clockDiscipline = Integer.parseInt(tokens[6]);
 
-                    double timeOffset = Double.parseDouble(tokens[2]);
-                    double frequencyOffsetPpm = Double.parseDouble(tokens[3]);
-                    double rmsJitter = Double.parseDouble(tokens[4]);
-                    double allanDeviation = Double.parseDouble(tokens[5]);
-                    int clockDiscipline = Integer.parseInt(tokens[6]);
-
-                    historyData.add(new HistoryData(date, timeOffset,
-                            frequencyOffsetPpm, rmsJitter, allanDeviation, clockDiscipline));
+                        historyData.add(new HistoryData(date, timeOffset,
+                                frequencyOffsetPpm, rmsJitter, allanDeviation, clockDiscipline));
+                    }
+                    reader.close();
                 }
-                reader.close();
+                DataModel.getInstance().getHistoryDataGroup().setHistoryData(historyData, newSelection);
             }
-            DataModel.getInstance().getHistoryDataGroup().setHistoryData(historyData, newSelection);
         } catch (Exception exception) {
             System.err.println("exception: " + exception.getLocalizedMessage());
         }
@@ -123,40 +126,40 @@ public class FilePane extends VBox {
         }
     }
 
-    /**
-     * REF: https://stackoverflow.com/questions/29402412/how-to-get-javafx-treeview-to-behave-consistently-upon-node-expansion
-     * stop scroll jump expanding a node when scrolled to the bottom of the tree
-     */
-    class TTreeViewSkin<T extends IndexedCell> extends TreeViewSkin<T> {
-        TTreeViewSkin(TreeView treeView) {
-            super(treeView);
-        }
+//    /**
+//     * REF: https://stackoverflow.com/questions/29402412/how-to-get-javafx-treeview-to-behave-consistently-upon-node-expansion
+//     * stop scroll jump expanding a node when scrolled to the bottom of the tree
+//     */
+//    class TTreeViewSkin<T extends IndexedCell> extends TreeViewSkin<T> {
+//        TTreeViewSkin(TreeView treeView) {
+//            super(treeView);
+//        }
+//
+//        @Override
+//        protected VirtualFlow<TreeCell<T>> createVirtualFlow() {
+//            return new TVirtualFlow<TreeCell<T>>();
+//        }
+//
+//    }
+//
+//    class TVirtualFlow<T extends IndexedCell> extends VirtualFlow<T> {
+//        @Override
+//        public double getPosition() {
+//            double position = super.getPosition();
+//            if (position == 1.0d) {
+//                return 0.99999999999;
+//            }
+//            return super.getPosition();
+//        }
 
-        @Override
-        protected VirtualFlow<TreeCell<T>> createVirtualFlow() {
-            return new TVirtualFlow<TreeCell<T>>();
-        }
-
-    }
-
-    class TVirtualFlow<T extends IndexedCell> extends VirtualFlow<T> {
-        @Override
-        public double getPosition() {
-            double position = super.getPosition();
-            if (position == 1.0d) {
-                return 0.99999999999;
-            }
-            return super.getPosition();
-        }
-
-        @Override
-        public void setPosition(double newPosition) {
-            if (newPosition == 1.0d) {
-                newPosition = 0.99999999999;
-            }
-            super.setPosition(newPosition);
-        }
-    }
+//        @Override
+//        public void setPosition(double newPosition) {
+//            if (newPosition == 1.0d) {
+//                newPosition = 0.99999999999;
+//            }
+//            super.setPosition(newPosition);
+//        }
+//    }
 
     public class FileInfo {
         private File file;

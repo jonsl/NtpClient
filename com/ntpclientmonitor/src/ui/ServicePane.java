@@ -14,9 +14,10 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 
-class ServicePane extends GridPane implements Observer {
-    private ServiceParser serviceParser;
+import java.util.Timer;
+import java.util.TimerTask;
 
+class ServicePane extends GridPane {
     private TextField nameDataTextArea;
     private TextField cationDataTextArea;
     private TextArea descriptionDataTextArea;
@@ -25,6 +26,8 @@ class ServicePane extends GridPane implements Observer {
     private TextField stateDataTextArea;
     private Button startButton;
     private Button stopButton;
+
+    private Timer timer;
 
     ServicePane() {
         super();
@@ -94,36 +97,77 @@ class ServicePane extends GridPane implements Observer {
         // process control
         this.startButton = new Button("Start");
         this.startButton.setDisable(true);
-        this.startButton.setOnAction(event -> {
-        });
         this.startButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         add(this.startButton, 0, 4, 5, 1);
 
         this.stopButton = new Button("Stop");
         this.stopButton.setDisable(true);
-        this.stopButton.setOnAction(event -> {
-        });
         this.stopButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         add(this.stopButton, 5, 4, 5, 1);
 
-        CommandExecutor commandExecutor = new CommandExecutor("wmic service NTP get " +
-                "Caption, Description, Name, StartMode, State, PathName /format:list");
-        this.serviceParser = new ServiceParser();
-        this.serviceParser.addObserver(this);
-        commandExecutor.exec(this.serviceParser);
+        this.startButton.setOnAction(event -> {
+            new Thread(() -> {
+                this.stopButton.setDisable(true);
+                this.startButton.setDisable(true);
+                CommandExecutor commandExecutor = new CommandExecutor("net start NTP");
+                commandExecutor.exec(null, null);
+            }).start();
+        });
+
+        this.stopButton.setOnAction(event -> {
+            new Thread(() -> {
+                this.stopButton.setDisable(true);
+                this.startButton.setDisable(true);
+                CommandExecutor commandExecutor = new CommandExecutor("net stop NTP");
+                commandExecutor.exec(null, null);
+            }).start();
+        });
+
+        timer = new Timer(true);
+        timer.scheduleAtFixedRate(new ServiceParserTimerTask(), 0, 1000);
     }
 
-    @Override
-    public void onNotify() {
-        Platform.runLater(() -> {
-            nameDataTextArea.setText(serviceParser.getServiceName());
-            cationDataTextArea.setText(serviceParser.getServiceCaption());
-            descriptionDataTextArea.setText(serviceParser.getServiceDescription());
-            pathNameDataTextArea.setText(serviceParser.getServicePathName());
-            startModeDataTextArea.setText(serviceParser.getServiceStartMode());
-            stateDataTextArea.setText(serviceParser.getServiceState());
-            startButton.setDisable(serviceParser.getServiceState().equals("Running"));
-            stopButton.setDisable(serviceParser.getServiceState().equals("Stopped"));
-        });
+    class ServiceParserTimerTask extends TimerTask implements Observer {
+        private ServiceParser serviceParser;
+
+        public synchronized ServiceParser getServiceParser() {
+            return serviceParser;
+        }
+
+        public synchronized void setServiceParser(ServiceParser serviceParser) {
+            this.serviceParser = serviceParser;
+        }
+
+        @Override
+        public void onNotify() {
+            Platform.runLater(() -> {
+                try {
+                    nameDataTextArea.setText(getServiceParser().getServiceName());
+                    cationDataTextArea.setText(getServiceParser().getServiceCaption());
+                    descriptionDataTextArea.setText(getServiceParser().getServiceDescription());
+                    pathNameDataTextArea.setText(getServiceParser().getServicePathName());
+                    startModeDataTextArea.setText(getServiceParser().getServiceStartMode());
+                    stateDataTextArea.setText(getServiceParser().getServiceState());
+                    startButton.setDisable(getServiceParser().getServiceState().equals("Running"));
+                    stopButton.setDisable(getServiceParser().getServiceState().equals("Stopped"));
+
+                    timer = new Timer(true);
+                    timer.scheduleAtFixedRate(new ServiceParserTimerTask(), 0, 500);
+                }
+                catch (Exception exception) {
+                    System.err.println("exception: " + exception.getLocalizedMessage());
+                }
+            });
+        }
+
+        @Override
+        public void run() {
+            timer.cancel();
+            CommandExecutor commandExecutor = new CommandExecutor("wmic service NTP get " +
+                    "Caption, Description, Name, StartMode, State, PathName /format:list");
+            setServiceParser(new ServiceParser());
+            getServiceParser().addObserver(this);
+            commandExecutor.exec(getServiceParser(), null);
+        }
     }
 }

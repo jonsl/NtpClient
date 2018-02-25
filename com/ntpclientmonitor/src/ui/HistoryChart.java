@@ -112,6 +112,5 @@ class HistoryChart extends StackPane implements Observer {
             plot.getRangeAxis(1).setAutoRange(false);
             plot.getRangeAxis(1).setAutoRange(true);
         }
-//        chart.fireChartChanged();
     }
 }

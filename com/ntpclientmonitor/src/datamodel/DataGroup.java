@@ -1,7 +1,6 @@
 package com.ntpclientmonitor.src.datamodel;
 
 import javafx.application.Platform;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
 
@@ -13,7 +12,6 @@ public abstract class DataGroup implements Observable {
     }
 
     protected void getData() {
-        throw new NotImplementedException();
     }
 
     @Override

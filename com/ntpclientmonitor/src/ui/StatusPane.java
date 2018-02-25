@@ -120,7 +120,7 @@ class StatusPane extends GridPane {
         add(table, 0, 0, 10, 4);
 
         final Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(new UpdatePollTask(), 0, 10000);
+        timer.scheduleAtFixedRate(new StatusParserTimerTask(), 0, 10000);
     }
 
     public static class PeerRow {
@@ -272,7 +272,7 @@ class StatusPane extends GridPane {
         }
     }
 
-    class UpdatePollTask extends TimerTask implements Observer {
+    class StatusParserTimerTask extends TimerTask implements Observer {
         private StatusParser statusParser;
 
         private synchronized StatusParser getStatusParser() {
@@ -299,7 +299,7 @@ class StatusPane extends GridPane {
             CommandExecutor commandExecutor = new CommandExecutor("ntpq -pn");
             setStatusParser(new StatusParser());
             getStatusParser().addObserver(this);
-            commandExecutor.exec(getStatusParser());
+            commandExecutor.exec(getStatusParser(), null);
         }
     }
 }
