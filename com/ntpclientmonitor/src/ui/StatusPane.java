@@ -1,6 +1,8 @@
 package com.ntpclientmonitor.src.ui;
 
-import com.ntpclientmonitor.src.datamodel.SystemUtils;
+import com.ntpclientmonitor.src.datamodel.CommandExecutor;
+import com.ntpclientmonitor.src.datamodel.Observer;
+import com.ntpclientmonitor.src.datamodel.StatusParser;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -9,12 +11,10 @@ import javafx.geometry.Insets;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -49,7 +49,7 @@ class StatusPane extends GridPane {
         sCol.setSortable(false);
         sCol.setPrefWidth(30);
         sCol.setMinWidth(30);
-        sCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("s"));
+        sCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("select"));
         TableColumn<PeerRow, String> remoteCol = new TableColumn<>("remote");
         remoteCol.setStyle(columnStyle);
         remoteCol.setSortable(false);
@@ -67,13 +67,13 @@ class StatusPane extends GridPane {
         stratumCol.setSortable(false);
         stratumCol.setPrefWidth(40);
         stratumCol.setMinWidth(40);
-        stratumCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("st"));
+        stratumCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("stratum"));
         TableColumn<PeerRow, String> typeCol = new TableColumn<>("type");
         typeCol.setStyle(columnStyle);
         typeCol.setSortable(false);
         typeCol.setPrefWidth(60);
         typeCol.setMinWidth(50);
-        typeCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("t"));
+        typeCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("type"));
         TableColumn<PeerRow, String> whenCol = new TableColumn<>("when");
         whenCol.setStyle(columnStyle);
         whenCol.setSortable(false);
@@ -113,13 +113,9 @@ class StatusPane extends GridPane {
 
         table.getColumns().addAll(sCol, remoteCol, refidCol, stratumCol, typeCol,
                 whenCol, pollCol, reachCol, delayCol, offsetCol, jitterCol);
-
-//        final String tableStyle = ".table-cell { -fx-font-weight:normal; -fx-font-size:12px; }";
-
         table.setEditable(false);
         table.setSelectionModel(null);
         table.setPrefHeight(150);
-//        table.setStyle(tableStyle);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         add(table, 0, 0, 10, 4);
 
@@ -128,11 +124,11 @@ class StatusPane extends GridPane {
     }
 
     public static class PeerRow {
-        private final SimpleStringProperty s;
+        private final SimpleStringProperty select;
         private final SimpleStringProperty remote;
         private final SimpleStringProperty refid;
-        private final SimpleStringProperty st;
-        private final SimpleStringProperty t;
+        private final SimpleStringProperty stratum;
+        private final SimpleStringProperty type;
         private final SimpleStringProperty when;
         private final SimpleStringProperty poll;
         private final SimpleStringProperty reach;
@@ -140,43 +136,43 @@ class StatusPane extends GridPane {
         private final SimpleStringProperty offset;
         private final SimpleStringProperty jitter;
 
-        PeerRow(SystemUtils.Peer peer) {
-            this.s = new SimpleStringProperty(peer.getS());
+        PeerRow(StatusParser.Peer peer) {
+            this.select = new SimpleStringProperty(peer.getSelect());
             this.remote = new SimpleStringProperty(peer.getRemote());
             this.refid = new SimpleStringProperty(peer.getRefid());
-            this.st = new SimpleStringProperty(peer.getSt());
+            this.stratum = new SimpleStringProperty(peer.getStratum());
             // Type (u: unicast or manycast client, b: broadcast or multicast client, l: local reference clock,
             // s: symmetric peer, A: manycast server, B: broadcast server, M: multicast server
-            switch (peer.getT()) {
+            switch (peer.getType()) {
                 case "u":
-                    this.t = new SimpleStringProperty("unicast");
+                    this.type = new SimpleStringProperty("unicast");
                     break;
                 case "b":
-                    this.t = new SimpleStringProperty("broadcast");
+                    this.type = new SimpleStringProperty("broadcast");
                     break;
                 case "l":
-                    this.t = new SimpleStringProperty("local");
+                    this.type = new SimpleStringProperty("local");
                     break;
                 case "s":
-                    this.t = new SimpleStringProperty("symmetric");
+                    this.type = new SimpleStringProperty("symmetric");
                     break;
                 case "A":
-                    this.t = new SimpleStringProperty("manycast");
+                    this.type = new SimpleStringProperty("manycast");
                     break;
                 case "B":
-                    this.t = new SimpleStringProperty("broadcast");
+                    this.type = new SimpleStringProperty("broadcast");
                     break;
                 case "M":
-                    this.t = new SimpleStringProperty("multicast");
+                    this.type = new SimpleStringProperty("multicast");
                     break;
                 case "p":
-                    this.t = new SimpleStringProperty("pool");
+                    this.type = new SimpleStringProperty("pool");
                     break;
                 case "-":
-                    this.t = new SimpleStringProperty("netaddr");
+                    this.type = new SimpleStringProperty("netaddr");
                     break;
                 default:
-                    this.t = new SimpleStringProperty(peer.getT());
+                    this.type = new SimpleStringProperty(peer.getType());
                     break;
             }
             this.when = new SimpleStringProperty(peer.getWhen());
@@ -188,11 +184,11 @@ class StatusPane extends GridPane {
         }
 
         public String getSelection() {
-            return s.get();
+            return select.get();
         }
 
-        public SimpleStringProperty sProperty() {
-            return s;
+        public SimpleStringProperty selectProperty() {
+            return select;
         }
 
         public String getRemote() {
@@ -211,20 +207,20 @@ class StatusPane extends GridPane {
             return refid;
         }
 
-        public String getSt() {
-            return st.get();
+        public String getStratum() {
+            return stratum.get();
         }
 
-        public SimpleStringProperty stProperty() {
-            return st;
+        public SimpleStringProperty stratumProperty() {
+            return stratum;
         }
 
-        public String getT() {
-            return t.get();
+        public String getType() {
+            return type.get();
         }
 
-        public SimpleStringProperty tProperty() {
-            return t;
+        public SimpleStringProperty typeProperty() {
+            return type;
         }
 
         public String getWhen() {
@@ -276,17 +272,34 @@ class StatusPane extends GridPane {
         }
     }
 
-    class UpdatePollTask extends TimerTask {
+    class UpdatePollTask extends TimerTask implements Observer {
+        private StatusParser statusParser;
+
+        private synchronized StatusParser getStatusParser() {
+            return statusParser;
+        }
+
+        private synchronized void setStatusParser(StatusParser statusParser) {
+            this.statusParser = statusParser;
+        }
+
         @Override
-        public void run() {
+        public void onNotify() {
             Platform.runLater(() -> {
                 ObservableList<PeerRow> data = FXCollections.observableArrayList();
-                List<SystemUtils.Peer> peers = SystemUtils.getInstance().getPeerList();
-                for (SystemUtils.Peer peer : peers) {
+                for (StatusParser.Peer peer : getStatusParser().getPeers()) {
                     data.add(new PeerRow(peer));
                 }
                 table.setItems(data);
             });
+        }
+
+        @Override
+        public void run() {
+            CommandExecutor commandExecutor = new CommandExecutor("ntpq -pn");
+            setStatusParser(new StatusParser());
+            getStatusParser().addObserver(this);
+            commandExecutor.exec(getStatusParser());
         }
     }
 }

@@ -2,18 +2,14 @@ package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.DataModel;
 import com.ntpclientmonitor.src.datamodel.HistoryData;
-import com.ntpclientmonitor.src.datamodel.Observer;
 import com.sun.javafx.scene.control.skin.TreeViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.VBox;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,34 +23,18 @@ import java.time.ZoneOffset;
 import java.time.temporal.JulianFields;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class FilePane extends GridPane {
+public class FilePane extends VBox {
     private static Image folderCollapseImage = new Image("file:resources/folder.png");
     private static Image folderExpandImage = new Image("file:resources/folder-open.png");
     private static Image fileImage = new Image("file:resources/text-x-generic.png");
-    private ArrayList<Observer> observers = new ArrayList<>();
     private TreeView<FileInfo> treeView;
+    private ObservableList<TreeItem<FileInfo>> selectedItems;
 
     public FilePane() {
         super();
-
-        setPadding(new Insets(10, 0, 0, 0));
-
-        setHgap(10);
-        setVgap(10);
-
-        double[] xPercents = {50, 50};
-        for (double xPercent : xPercents) {
-            ColumnConstraints col = new ColumnConstraints();
-            col.setPercentWidth(xPercent);
-            getColumnConstraints().add(col);
-        }
-        double[] yPercents = {5, 95};
-        for (double yPercent : yPercents) {
-            RowConstraints row = new RowConstraints();
-            row.setPercentHeight(yPercent);
-            getRowConstraints().add(row);
-        }
 
         //setup the file browser root
         String hostName = "computer";
@@ -73,48 +53,11 @@ public class FilePane extends GridPane {
             }
         };
         treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        treeView.setOnKeyPressed(event -> {
-            KeyCode keyCode = event.getCode();
-            if (keyCode.equals(KeyCode.ENTER)) {
-                //
-                try {
-                    ArrayList<HistoryData> historyData = new ArrayList<>();
-
-                    ObservableList<TreeItem<FileInfo>> items = treeView.getSelectionModel().getSelectedItems();
-                    for (TreeItem<FileInfo> item : items) {
-
-                        BufferedReader reader = new BufferedReader(new FileReader(item.getValue().getFile()));
-                        String line;
-
-                        // repeat until all lines read
-                        while ((line = reader.readLine()) != null) {
-                            String[] tokens = line.trim().split("\\s+");
-                            long modifiedJulianDay = Long.parseLong(tokens[0]);
-                            double secondOffset = Double.parseDouble(tokens[1]);
-
-                            LocalDate localDate = LocalDate.MIN.with(JulianFields.MODIFIED_JULIAN_DAY, modifiedJulianDay);
-                            Date modifiedJulianDayDate = Date.from(localDate.atStartOfDay().toInstant(ZoneOffset.UTC));
-                            long time = modifiedJulianDayDate.getTime() + (long) (secondOffset * 1000.0);
-                            Date date = new Date(time);
-
-                            double timeOffset = Double.parseDouble(tokens[2]);
-                            double frequencyOffsetPpm = Double.parseDouble(tokens[3]);
-                            double rmsJitter = Double.parseDouble(tokens[4]);
-                            double allanDeviation = Double.parseDouble(tokens[5]);
-                            int clockDiscipline = Integer.parseInt(tokens[6]);
-
-                            historyData.add(new HistoryData(date, timeOffset,
-                                    frequencyOffsetPpm, rmsJitter, allanDeviation, clockDiscipline));
-                        }
-                        reader.close();
-                    }
-                    DataModel.getInstance().getHistoryDataGroup().setHistoryData(historyData);
-
-                } catch (Exception exception) {
-                    System.err.println("exception: " + exception.getLocalizedMessage());
-                }
-            }
-        });
+        treeView.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    selectedItems = treeView.getSelectionModel().getSelectedItems();
+                    updateHistoryData(true);
+                });
 
         Iterable<Path> rootDirectories = FileSystems.getDefault().getRootDirectories();
         for (Path name : rootDirectories) {
@@ -122,9 +65,62 @@ public class FilePane extends GridPane {
             rootNode.getChildren().add(treeNode);
         }
         // add
-        add(new Label("File browser"), 0, 0);
+        TitledPane systemPane = new TitledPane("System time", new DigitalSystemTimePanel());
+        getChildren().add(systemPane);
 
-        add(treeView, 0, 1, 2, 1);
+        TitledPane filePane = new TitledPane("Loopstats location", treeView);
+        filePane.setCollapsible(false);
+        getChildren().add(filePane);
+
+        final Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(new SelectedItemsTimerTask(), 0, 1000);
+    }
+
+    private void updateHistoryData(boolean newSelection) {
+        //
+        try {
+            ArrayList<HistoryData> historyData = new ArrayList<>();
+            for (TreeItem<FileInfo> item : selectedItems) {
+                BufferedReader reader = new BufferedReader(new FileReader(item.getValue().getFile()));
+                String line;
+
+                // repeat until all lines read
+                while ((line = reader.readLine()) != null) {
+                    String[] tokens = line.trim().split("\\s+");
+                    long modifiedJulianDay = Long.parseLong(tokens[0]);
+                    double secondOffset = Double.parseDouble(tokens[1]);
+
+                    LocalDate localDate = LocalDate.MIN.with(JulianFields.MODIFIED_JULIAN_DAY, modifiedJulianDay);
+                    Date modifiedJulianDayDate = Date.from(localDate.atStartOfDay().toInstant(ZoneOffset.UTC));
+                    long time = modifiedJulianDayDate.getTime() + (long) (secondOffset * 1000.0);
+                    Date date = new Date(time);
+
+                    double timeOffset = Double.parseDouble(tokens[2]);
+                    double frequencyOffsetPpm = Double.parseDouble(tokens[3]);
+                    double rmsJitter = Double.parseDouble(tokens[4]);
+                    double allanDeviation = Double.parseDouble(tokens[5]);
+                    int clockDiscipline = Integer.parseInt(tokens[6]);
+
+                    historyData.add(new HistoryData(date, timeOffset,
+                            frequencyOffsetPpm, rmsJitter, allanDeviation, clockDiscipline));
+                }
+                reader.close();
+            }
+            DataModel.getInstance().getHistoryDataGroup().setHistoryData(historyData, newSelection);
+        } catch (Exception exception) {
+            System.err.println("exception: " + exception.getLocalizedMessage());
+        }
+    }
+
+    public ObservableList<TreeItem<FileInfo>> getSelectedItems() {
+        return selectedItems;
+    }
+
+    class SelectedItemsTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            Platform.runLater(() -> updateHistoryData(false));
+        }
     }
 
     /**
@@ -211,7 +207,7 @@ public class FilePane extends GridPane {
         public boolean isLeaf() {
             if (isFirstTimeLeaf) {
                 isFirstTimeLeaf = false;
-                isLeaf = getValue().getFile().isFile();
+                isLeaf = buildChildren(this).size() == 0;//getValue().getFile().isFile();
             }
             return isLeaf;
         }
@@ -223,7 +219,9 @@ public class FilePane extends GridPane {
                 if (files != null) {
                     ObservableList<TreeItem<FileInfo>> children = FXCollections.observableArrayList();
                     for (File childFile : files) {
-                        children.add(new SimpleFileTreeItem(new FileInfo(childFile)));
+                        if (childFile.isDirectory() || childFile.toPath().getFileName().toString().startsWith("loopstats.")) {
+                            children.add(new SimpleFileTreeItem(new FileInfo(childFile)));
+                        }
                     }
                     return children;
                 }

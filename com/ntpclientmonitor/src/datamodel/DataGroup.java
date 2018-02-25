@@ -9,7 +9,7 @@ public abstract class DataGroup implements Observable {
     //
     private ArrayList<Observer> observers = new ArrayList<>();
 
-    protected DataGroup() {
+    DataGroup() {
     }
 
     protected void getData() {

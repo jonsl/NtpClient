@@ -31,7 +31,7 @@ public class Main extends Application {
         SplitPane horizontalSplitPane = new SplitPane();
         horizontalSplitPane.setOrientation(Orientation.HORIZONTAL);
         horizontalSplitPane.getItems().addAll(sp1, sp2);
-        horizontalSplitPane.setDividerPositions(0.2f);
+        horizontalSplitPane.setDividerPositions(0.3f);
         // tree / chart / option
         final StackPane sp3 = new StackPane();
         OptionPane optionPane = new OptionPane();
@@ -43,15 +43,15 @@ public class Main extends Application {
         verticalSplitPane.prefWidthProperty().bind(primaryStage.widthProperty());
         verticalSplitPane.prefHeightProperty().bind(primaryStage.heightProperty());
         // menu
-        MenuBar menuBar = new MenuBar();
-        Menu menuFile = new Menu("File");
-        Menu menuEdit = new Menu("Edit");
-        Menu menuView = new Menu("View");
-        menuBar.getMenus().addAll(menuFile, menuEdit, menuView);
-        menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
+//        MenuBar menuBar = new MenuBar();
+//        Menu menuFile = new Menu("File");
+//        Menu menuEdit = new Menu("Edit");
+//        Menu menuView = new Menu("View");
+//        menuBar.getMenus().addAll(menuFile, menuEdit, menuView);
+//        menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
 
         BorderPane root = new BorderPane();
-        root.setTop(menuBar);
+//        root.setTop(menuBar);
         root.setCenter(verticalSplitPane);
         Scene scene = new Scene(root, 800, 600);
         primaryStage.sizeToScene();

@@ -22,15 +22,5 @@ class OptionPane extends TabPane {
         StatusPane statusPane = new StatusPane();
         statusTab.setContent(statusPane);
         getTabs().add(statusTab);
-
-        Tab syncTab = new Tab();
-        syncTab.setText("Sync");
-        GridPane syncPane = new GridPane();
-        DigitalSystemTimePanel digitalSystemTimePanel = new DigitalSystemTimePanel();
-        TitledPane systemTimeTitledPane = new TitledPane("System time", digitalSystemTimePanel);
-        systemTimeTitledPane.setCollapsible(false);
-        syncPane.add(systemTimeTitledPane, 0, 0);
-        syncTab.setContent(syncPane);
-        getTabs().add(syncTab);
     }
 }

@@ -2,10 +2,8 @@ package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.DataModel;
 import com.ntpclientmonitor.src.datamodel.HistoryData;
-import com.ntpclientmonitor.src.datamodel.HistoryDataGroup;
 import com.ntpclientmonitor.src.datamodel.Observer;
 import javafx.scene.layout.StackPane;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -13,11 +11,7 @@ import org.jfree.chart.fx.ChartViewer;
 import org.jfree.chart.fx.interaction.MouseHandlerFX;
 import org.jfree.chart.fx.interaction.PanHandlerFX;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.DefaultXYItemRenderer;
-import org.jfree.chart.renderer.xy.SamplingXYLineRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYSplineRenderer;
-import org.jfree.data.Range;
 import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -25,6 +19,7 @@ import org.jfree.data.time.TimeSeriesCollection;
 import java.awt.*;
 import java.nio.file.WatchService;
 import java.util.Date;
+import java.util.TimerTask;
 
 class HistoryChart extends StackPane implements Observer {
     private TimeSeriesCollection offsetDataset = new TimeSeriesCollection();
@@ -100,22 +95,23 @@ class HistoryChart extends StackPane implements Observer {
             allanDeviationSeries.addOrUpdate(second, historyData.getAllanDeviation());
         }
 
-        this.offsetDataset.removeAllSeries();
-        this.offsetDataset.addSeries(offsetTimeSeries);
-        this.offsetDataset.addSeries(rmsJitterSeries);
-        this.frequencyDataset.removeAllSeries();
-        this.frequencyDataset.addSeries(frequencyOffsetPpmTimeSeries);
-        this.frequencyDataset.addSeries(allanDeviationSeries);
+        offsetDataset.removeAllSeries();
+        offsetDataset.addSeries(offsetTimeSeries);
+        offsetDataset.addSeries(rmsJitterSeries);
+        frequencyDataset.removeAllSeries();
+        frequencyDataset.addSeries(frequencyOffsetPpmTimeSeries);
+        frequencyDataset.addSeries(allanDeviationSeries);
 
-        XYPlot plot = (XYPlot) chart.getPlot();
-        plot.getDomainAxis().setAutoRange(false);
-        plot.getDomainAxis().setAutoRange(true);
+        if (DataModel.getInstance().getHistoryDataGroup().isNewSelection()) {
+            XYPlot plot = (XYPlot) chart.getPlot();
+            plot.getDomainAxis().setAutoRange(false);
+            plot.getDomainAxis().setAutoRange(true);
 
-        plot.getRangeAxis(0).setAutoRange(false);
-        plot.getRangeAxis(0).setAutoRange(true);
-        plot.getRangeAxis(1).setAutoRange(false);
-        plot.getRangeAxis(1).setAutoRange(true);
-
-        chart.fireChartChanged();
+            plot.getRangeAxis(0).setAutoRange(false);
+            plot.getRangeAxis(0).setAutoRange(true);
+            plot.getRangeAxis(1).setAutoRange(false);
+            plot.getRangeAxis(1).setAutoRange(true);
+        }
+//        chart.fireChartChanged();
     }
 }

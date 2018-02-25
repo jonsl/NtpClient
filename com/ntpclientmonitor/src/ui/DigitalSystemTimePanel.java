@@ -1,13 +1,10 @@
 package com.ntpclientmonitor.src.ui;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -37,14 +34,16 @@ class DigitalSystemTimePanel extends GridPane {
     DigitalSystemTimePanel() {
         super();
 
+        getColumnConstraints().add(new ColumnConstraints(220));
+
         GridPane gridPane = new GridPane();
 
         gridPane.setStyle("-fx-background-color:black;");
 
         ColumnConstraints col1 = new ColumnConstraints(110);
-        col1.setHgrow(Priority.ALWAYS);
+//        col1.setHgrow(Priority.ALWAYS);
         ColumnConstraints col2 = new ColumnConstraints(110);
-        col2.setHgrow(Priority.ALWAYS);
+//        col2.setHgrow(Priority.ALWAYS);
 
         gridPane.getColumnConstraints().addAll(col1, col2);
 
@@ -77,15 +76,12 @@ class DigitalSystemTimePanel extends GridPane {
         add(borderPane, 0, 1);
 
         final ToggleGroup group = new ToggleGroup();
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
-                if (group.getSelectedToggle().getUserData() != null) {
-                    if (group.getSelectedToggle().getUserData().toString().equals("L")) {
-                        timeZoneType = TimeZoneType.LOCAL;
-                    } else if (group.getSelectedToggle().getUserData().toString().equals("U")) {
-                        timeZoneType = TimeZoneType.UTC;
-                    }
+        group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            if (group.getSelectedToggle().getUserData() != null) {
+                if (group.getSelectedToggle().getUserData().toString().equals("L")) {
+                    timeZoneType = TimeZoneType.LOCAL;
+                } else if (group.getSelectedToggle().getUserData().toString().equals("U")) {
+                    timeZoneType = TimeZoneType.UTC;
                 }
             }
         });
@@ -119,7 +115,7 @@ class DigitalSystemTimePanel extends GridPane {
         }
 
         public void updateDisplay() {
-            setTextFill(Color.web("#00ff00"));
+            setTextFill(Color.GREEN);
             setStyle("-fx-background-color:black;");
             switch (type) {
                 case DATE:

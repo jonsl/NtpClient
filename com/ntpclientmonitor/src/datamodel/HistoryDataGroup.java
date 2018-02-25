@@ -4,9 +4,8 @@ import java.util.ArrayList;
 
 public class HistoryDataGroup extends DataGroup {
     //
-    private final String historyTable = "history";
-    //
     private ArrayList<HistoryData> historyData;
+    private boolean newSelection;
 
     HistoryDataGroup() {
         super();
@@ -20,8 +19,13 @@ public class HistoryDataGroup extends DataGroup {
         return historyData;
     }
 
-    public void setHistoryData(ArrayList<HistoryData> historyData) {
+    public void setHistoryData(ArrayList<HistoryData> historyData, boolean newSelection) {
         this.historyData = historyData;
+        this.newSelection = newSelection;
         super.notifyObservers();
+    }
+
+    public boolean isNewSelection() {
+        return newSelection;
     }
 }
