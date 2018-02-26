@@ -127,7 +127,7 @@ class ServicePane extends GridPane {
         timer.scheduleAtFixedRate(new ServiceParserTimerTask(), 0, 1000);
     }
 
-    class ServiceParserTimerTask extends TimerTask implements Observer {
+    class ServiceParserTimerTask extends TimerTask {
         private ServiceParser serviceParser;
 
         public synchronized ServiceParser getServiceParser() {
@@ -139,34 +139,31 @@ class ServicePane extends GridPane {
         }
 
         @Override
-        public void onNotify() {
-            Platform.runLater(() -> {
-                try {
-                    nameDataTextArea.setText(getServiceParser().getServiceName());
-                    cationDataTextArea.setText(getServiceParser().getServiceCaption());
-                    descriptionDataTextArea.setText(getServiceParser().getServiceDescription());
-                    pathNameDataTextArea.setText(getServiceParser().getServicePathName());
-                    startModeDataTextArea.setText(getServiceParser().getServiceStartMode());
-                    stateDataTextArea.setText(getServiceParser().getServiceState());
-                    startButton.setDisable(getServiceParser().getServiceState().equals("Running"));
-                    stopButton.setDisable(getServiceParser().getServiceState().equals("Stopped"));
-
-                    timer = new Timer(true);
-                    timer.scheduleAtFixedRate(new ServiceParserTimerTask(), 0, 500);
-                }
-                catch (Exception exception) {
-                    System.err.println("exception: " + exception.getLocalizedMessage());
-                }
-            });
-        }
-
-        @Override
         public void run() {
             timer.cancel();
             CommandExecutor commandExecutor = new CommandExecutor("wmic service NTP get " +
                     "Caption, Description, Name, StartMode, State, PathName /format:list");
             setServiceParser(new ServiceParser());
-            getServiceParser().addObserver(this);
+            getServiceParser().addObserver(() -> {
+                Platform.runLater(() -> {
+                    try {
+                        nameDataTextArea.setText(getServiceParser().getServiceName());
+                        cationDataTextArea.setText(getServiceParser().getServiceCaption());
+                        descriptionDataTextArea.setText(getServiceParser().getServiceDescription());
+                        pathNameDataTextArea.setText(getServiceParser().getServicePathName());
+                        startModeDataTextArea.setText(getServiceParser().getServiceStartMode());
+                        stateDataTextArea.setText(getServiceParser().getServiceState());
+                        startButton.setDisable(getServiceParser().getServiceState().equals("Running"));
+                        stopButton.setDisable(getServiceParser().getServiceState().equals("Stopped"));
+
+                        timer = new Timer(true);
+                        timer.scheduleAtFixedRate(new ServiceParserTimerTask(), 0, 500);
+                    }
+                    catch (Exception exception) {
+                        System.err.println("exception: " + exception.getLocalizedMessage());
+                    }
+                });
+            });
             commandExecutor.exec(getServiceParser(), null);
         }
     }

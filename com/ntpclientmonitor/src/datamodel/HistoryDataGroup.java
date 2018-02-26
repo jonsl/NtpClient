@@ -1,10 +1,12 @@
 package com.ntpclientmonitor.src.datamodel;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class HistoryDataGroup extends DataGroup {
     //
-    private ArrayList<HistoryData> historyData;
+    private List<HistoryData> historyData;
     private boolean newSelection;
 
     HistoryDataGroup() {
@@ -15,11 +17,11 @@ public class HistoryDataGroup extends DataGroup {
     protected void getData() {
     }
 
-    public final ArrayList<HistoryData> getHistoryData() {
+    public final List<HistoryData> getHistoryData() {
         return historyData;
     }
 
-    public void setHistoryData(ArrayList<HistoryData> historyData, boolean newSelection) {
+    public void setHistoryData(List<HistoryData> historyData, boolean newSelection) {
         this.historyData = historyData;
         this.newSelection = newSelection;
         super.notifyObservers();

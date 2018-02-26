@@ -272,7 +272,7 @@ class StatusPane extends GridPane {
         }
     }
 
-    class StatusParserTimerTask extends TimerTask implements Observer {
+    class StatusParserTimerTask extends TimerTask {
         private StatusParser statusParser;
 
         private synchronized StatusParser getStatusParser() {
@@ -284,21 +284,18 @@ class StatusPane extends GridPane {
         }
 
         @Override
-        public void onNotify() {
-            Platform.runLater(() -> {
-                ObservableList<PeerRow> data = FXCollections.observableArrayList();
-                for (StatusParser.Peer peer : getStatusParser().getPeers()) {
-                    data.add(new PeerRow(peer));
-                }
-                table.setItems(data);
-            });
-        }
-
-        @Override
         public void run() {
             CommandExecutor commandExecutor = new CommandExecutor("ntpq -pn");
             setStatusParser(new StatusParser());
-            getStatusParser().addObserver(this);
+            getStatusParser().addObserver(() -> {
+                Platform.runLater(() -> {
+                    ObservableList<PeerRow> data = FXCollections.observableArrayList();
+                    for (StatusParser.Peer peer : getStatusParser().getPeers()) {
+                        data.add(new PeerRow(peer));
+                    }
+                    table.setItems(data);
+                });
+            });
             commandExecutor.exec(getStatusParser(), null);
         }
     }
