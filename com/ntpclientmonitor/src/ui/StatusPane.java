@@ -120,7 +120,7 @@ class StatusPane extends GridPane {
         tableView.setSelectionModel(null);
         tableView.setPrefHeight(150);
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        add(tableView, 0, 0, 10, 4);
+        add(tableView, 0, 0, 10, 5);
 
         PseudoClass starSelect = PseudoClass.getPseudoClass("select-star");
         PseudoClass oSelect = PseudoClass.getPseudoClass("select-o");
