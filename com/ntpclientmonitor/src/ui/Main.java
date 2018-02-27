@@ -3,6 +3,7 @@ package com.ntpclientmonitor.src.ui;
 import com.ntpclientmonitor.src.datamodel.DataModel;
 import com.ntpclientmonitor.src.datamodel.SystemUtils;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
@@ -54,6 +55,8 @@ public class Main extends Application {
 //        root.setTop(menuBar);
         root.setCenter(verticalSplitPane);
         Scene scene = new Scene(root, 800, 600);
+        boolean added = scene.getStylesheets().add("ntp-client-monitor.css");
+//        filePane.requestFocus();
         primaryStage.sizeToScene();
         primaryStage.setScene(scene);
         primaryStage.show();

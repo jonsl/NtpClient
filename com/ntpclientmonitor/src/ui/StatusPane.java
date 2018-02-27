@@ -1,25 +1,28 @@
 package com.ntpclientmonitor.src.ui;
 
 import com.ntpclientmonitor.src.datamodel.CommandExecutor;
-import com.ntpclientmonitor.src.datamodel.Observer;
 import com.ntpclientmonitor.src.datamodel.StatusParser;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.paint.Color;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 class StatusPane extends GridPane {
-    private TableView<PeerRow> table = new TableView<>();
+    private TableView<PeerRow> tableView = new TableView<>();
 
     StatusPane() {
         super();
@@ -111,19 +114,70 @@ class StatusPane extends GridPane {
         jitterCol.setMinWidth(50);
         jitterCol.setCellValueFactory(new PropertyValueFactory<PeerRow, String>("jitter"));
 
-        table.getColumns().addAll(sCol, remoteCol, refidCol, stratumCol, typeCol,
+        tableView.getColumns().addAll(sCol, remoteCol, refidCol, stratumCol, typeCol,
                 whenCol, pollCol, reachCol, delayCol, offsetCol, jitterCol);
-        table.setEditable(false);
-        table.setSelectionModel(null);
-        table.setPrefHeight(150);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        add(table, 0, 0, 10, 4);
+        tableView.setEditable(false);
+        tableView.setSelectionModel(null);
+        tableView.setPrefHeight(150);
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        add(tableView, 0, 0, 10, 4);
+
+        PseudoClass starSelect = PseudoClass.getPseudoClass("select-star");
+        PseudoClass oSelect = PseudoClass.getPseudoClass("select-o");
+        PseudoClass plusSelect = PseudoClass.getPseudoClass("select-plus");
+        PseudoClass minusSelect = PseudoClass.getPseudoClass("select-minus");
+        PseudoClass eSelect = PseudoClass.getPseudoClass("select-e");
+        PseudoClass xSelect = PseudoClass.getPseudoClass("select-x");
+        PseudoClass hashSelect = PseudoClass.getPseudoClass("select-hash");
+        PseudoClass spaceSelect = PseudoClass.getPseudoClass("select-space");
+
+        tableView.setRowFactory(tableView -> {
+
+            TableRow<PeerRow> row = new TableRow<>();
+            ChangeListener<String> changeListener = (obs, oldSelect, newSelect) -> {
+                row.pseudoClassStateChanged(starSelect, newSelect.equals("*"));
+                row.pseudoClassStateChanged(oSelect, newSelect.equals("o"));
+                row.pseudoClassStateChanged(plusSelect, newSelect.equals("+"));
+                row.pseudoClassStateChanged(minusSelect, newSelect.equals("-"));
+                row.pseudoClassStateChanged(eSelect, newSelect.equals("e"));
+                row.pseudoClassStateChanged(xSelect, newSelect.equals("x"));
+                row.pseudoClassStateChanged(hashSelect, newSelect.equals("#"));
+                row.pseudoClassStateChanged(spaceSelect, newSelect.equals(" "));
+            };
+
+            row.itemProperty().addListener((obs, previousPeerRow, currentPeerRow) -> {
+                if (previousPeerRow != null) {
+                    previousPeerRow.selectProperty().removeListener(changeListener);
+                }
+                if (currentPeerRow != null) {
+                    currentPeerRow.selectProperty().addListener(changeListener);
+                    row.pseudoClassStateChanged(starSelect, currentPeerRow.selectProperty().getValue().equals("*"));
+                    row.pseudoClassStateChanged(oSelect, currentPeerRow.selectProperty().getValue().equals("o"));
+                    row.pseudoClassStateChanged(plusSelect, currentPeerRow.selectProperty().getValue().equals("+"));
+                    row.pseudoClassStateChanged(minusSelect, currentPeerRow.selectProperty().getValue().equals("-"));
+                    row.pseudoClassStateChanged(eSelect, currentPeerRow.selectProperty().getValue().equals("e"));
+                    row.pseudoClassStateChanged(xSelect, currentPeerRow.selectProperty().getValue().equals("x"));
+                    row.pseudoClassStateChanged(hashSelect, currentPeerRow.selectProperty().getValue().equals("#"));
+                    row.pseudoClassStateChanged(spaceSelect, currentPeerRow.selectProperty().getValue().equals(" "));
+                } else {
+                    row.pseudoClassStateChanged(starSelect, false);
+                    row.pseudoClassStateChanged(oSelect, false);
+                    row.pseudoClassStateChanged(plusSelect, false);
+                    row.pseudoClassStateChanged(minusSelect, false);
+                    row.pseudoClassStateChanged(eSelect, false);
+                    row.pseudoClassStateChanged(xSelect, false);
+                    row.pseudoClassStateChanged(hashSelect, false);
+                    row.pseudoClassStateChanged(spaceSelect, false);
+                }
+            });
+            return row;
+        });
 
         final Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(new StatusParserTimerTask(), 0, 10000);
     }
 
-    public static class PeerRow {
+    public class PeerRow {
         private final SimpleStringProperty select;
         private final SimpleStringProperty remote;
         private final SimpleStringProperty refid;
@@ -293,7 +347,7 @@ class StatusPane extends GridPane {
                     for (StatusParser.Peer peer : getStatusParser().getPeers()) {
                         data.add(new PeerRow(peer));
                     }
-                    table.setItems(data);
+                    tableView.setItems(data);
                 });
             });
             commandExecutor.exec(getStatusParser(), null);

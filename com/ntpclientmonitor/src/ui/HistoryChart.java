@@ -10,6 +10,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.fx.ChartViewer;
 import org.jfree.chart.fx.interaction.MouseHandlerFX;
 import org.jfree.chart.fx.interaction.PanHandlerFX;
+import org.jfree.chart.fx.interaction.ZoomHandlerFX;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Second;
@@ -64,19 +65,26 @@ class HistoryChart extends StackPane implements Observer {
         plot.setRangePannable(true);
 
         this.chart = new JFreeChart(null, null, plot, true);
-        ChartViewer chartViewer = new ChartViewer(chart);
+        ChartViewer chartViewer = new ChartViewer(chart, false);
 
         // remove default pan handler
         MouseHandlerFX mouseHandlerFX = chartViewer.getCanvas().getMouseHandler("pan");
         chartViewer.getCanvas().removeMouseHandler(mouseHandlerFX);
+        MouseHandlerFX scrollHandlerFX = chartViewer.getCanvas().getMouseHandler("scroll");
+        chartViewer.getCanvas().removeAuxiliaryMouseHandler(scrollHandlerFX);
+        MouseHandlerFX mouseZoomHandlerFX = chartViewer.getCanvas().getMouseHandler("zoom");
+        chartViewer.getCanvas().removeMouseHandler(mouseZoomHandlerFX);
+
         // add pan handler without keys
         PanHandlerFX panHandlerFX = new PanHandlerFX("pan", false, false, false, false);
         chartViewer.getCanvas().addMouseHandler(panHandlerFX);
         // set zoomable
-        chartViewer.getCanvas().setDomainZoomable(true);
-        chartViewer.getCanvas().setRangeZoomable(true);
+        ZoomHandlerFX zoomHandlerFX = new ZoomHandlerFX("zoom", chartViewer, false, true, false, false);
+        chartViewer.getCanvas().addMouseHandler(zoomHandlerFX);
         // add to pane
         this.getChildren().add(chartViewer);
+
+        setFocusTraversable(false);
     }
 
     @Override

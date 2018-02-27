@@ -7,10 +7,10 @@ import com.ntpclientmonitor.src.datamodel.ServiceParser;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.control.skin.TableViewSkin;
+import javafx.scene.control.skin.TreeViewSkin;
+import javafx.scene.control.skin.VirtualFlow;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -49,7 +49,12 @@ public class FilePane extends VBox {
 
         TreeItem<FileInfo> rootNode = new TreeItem<>(new FileInfo(hostName));
         // create the tree view with
-        treeView = new TreeView<FileInfo>(rootNode);// {
+        treeView = new TreeView<FileInfo>(rootNode) {
+            @Override
+            protected Skin<?> createDefaultSkin() {
+                return super.createDefaultSkin();
+            }
+        };
 //            @Override
 //            protected Skin createDefaultSkin() {
 //                return new TTreeViewSkin(this);
@@ -97,6 +102,7 @@ public class FilePane extends VBox {
 
         // add time panel
         TitledPane systemPane = new TitledPane("System time", new DigitalSystemTimePanel());
+        systemPane.setAnimated(false);
         getChildren().add(systemPane);
         // add file tree
         TitledPane filePane = new TitledPane("Loopstats location", treeView);
@@ -105,6 +111,12 @@ public class FilePane extends VBox {
 
         this.timer = new Timer(true);
         this.timer.scheduleAtFixedRate(new SelectedItemsTimerTask(), 10000, 10000);
+    }
+
+    @Override
+    public void requestFocus() {
+        super.requestFocus();
+        treeView.requestFocus();
     }
 
     private int expandPath(TreeItem<FileInfo> root, String path) {
@@ -223,28 +235,39 @@ public class FilePane extends VBox {
 //     * REF: https://stackoverflow.com/questions/29402412/how-to-get-javafx-treeview-to-behave-consistently-upon-node-expansion
 //     * stop scroll jump expanding a node when scrolled to the bottom of the tree
 //     */
-//    class TTreeViewSkin<T extends IndexedCell> extends TreeViewSkin<T> {
+//    public static class TTreeViewSkin<T> extends TreeViewSkin<T> {
 //        TTreeViewSkin(TreeView treeView) {
 //            super(treeView);
 //        }
 //
+//        /**
+//         * Overridden to return custom flow.
+//         */
 //        @Override
-//        protected VirtualFlow<TreeCell<T>> createVirtualFlow() {
-//            return new TVirtualFlow<TreeCell<T>>();
+//        protected VirtualFlow createVirtualFlow() {
+////            return new MyFlow();
 //        }
+//
+////        @Override
+////        protected VirtualFlow<TreeCell<T>> createVirtualFlow() {
+//////            return new TVirtualFlow<TreeCell<T>>();
+////        }
 //
 //    }
 //
 //    class TVirtualFlow<T extends IndexedCell> extends VirtualFlow<T> {
+//
+//
+//
 //        @Override
-//        public double getPosition() {
+//        public double getPro() {
 //            double position = super.getPosition();
 //            if (position == 1.0d) {
 //                return 0.99999999999;
 //            }
 //            return super.getPosition();
 //        }
-
+//
 //        @Override
 //        public void setPosition(double newPosition) {
 //            if (newPosition == 1.0d) {

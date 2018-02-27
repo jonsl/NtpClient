@@ -1,0 +1,41 @@
+/* Default row background is black */
+.table-row-cell {
+    -fx-background-color: black;
+}
+
+/* Text in the rows will be white */
+.table-row-cell .text {
+       -fx-fill: white ;
+}
+
+.table-row-cell:select-star {
+    -fx-background-color: green;
+}
+
+.table-row-cell:select-o {
+    -fx-background-color: greenyellow;
+}
+
+.table-row-cell:select-plus {
+    -fx-background-color: yellowgreen;
+}
+
+.table-row-cell:select-minus {
+    -fx-background-color: yellow;
+}
+
+.table-row-cell:select-e {
+    -fx-background-color: orange;
+}
+
+.table-row-cell:select-x {
+    -fx-background-color: orangered;
+}
+
+.table-row-cell:select-hash {
+    -fx-background-color: red;
+}
+
+.table-row-cell:select-space {
+    -fx-background-color: darkgray;
+}
