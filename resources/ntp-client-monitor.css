@@ -13,27 +13,27 @@
 }
 
 .table-row-cell:select-o {
-    -fx-background-color: greenyellow;
+    -fx-background-color: goldenrod;
 }
 
 .table-row-cell:select-plus {
-    -fx-background-color: yellowgreen;
+    -fx-background-color: darkgoldenrod;
 }
 
 .table-row-cell:select-minus {
-    -fx-background-color: yellow;
-}
-
-.table-row-cell:select-e {
-    -fx-background-color: orange;
-}
-
-.table-row-cell:select-x {
     -fx-background-color: orangered;
 }
 
-.table-row-cell:select-hash {
+.table-row-cell:select-e {
     -fx-background-color: red;
+}
+
+.table-row-cell:select-x {
+    -fx-background-color: red;
+}
+
+.table-row-cell:select-hash {
+    -fx-background-color: darkred;
 }
 
 .table-row-cell:select-space {
