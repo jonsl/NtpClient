@@ -27,8 +27,8 @@ class ServicePane extends GridPane {
     private Button startButton;
     private Button stopButton;
     private Timer timer;
-    private final int PollDelay = 1000;
-    private final int PollPeriod = 1000;
+    private final int PollDelay = 2000;
+    private final int PollPeriod = 2000;
 
     ServicePane() {
         super();

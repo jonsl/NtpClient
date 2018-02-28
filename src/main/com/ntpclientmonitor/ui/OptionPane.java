@@ -1,5 +1,6 @@
 package com.ntpclientmonitor.ui;
 
+import javafx.geometry.Side;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
@@ -22,5 +23,7 @@ class OptionPane extends TabPane {
         StatusPane statusPane = new StatusPane();
         statusTab.setContent(statusPane);
         getTabs().add(statusTab);
+
+        setSide(Side.BOTTOM);
     }
 }

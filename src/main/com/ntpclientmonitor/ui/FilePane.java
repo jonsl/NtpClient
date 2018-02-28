@@ -107,12 +107,6 @@ public class FilePane extends VBox {
         this.timer.scheduleAtFixedRate(new SelectedItemsTimerTask(), 0, PollPeriod);
     }
 
-    @Override
-    public void requestFocus() {
-        super.requestFocus();
-        treeView.requestFocus();
-    }
-
     private int expandPath(TreeItem<FileInfo> root, String path) {
         File file = new File(path);
         LinkedList<String> pathStack = new LinkedList<>();
