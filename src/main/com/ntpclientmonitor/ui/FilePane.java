@@ -1,16 +1,16 @@
-package com.ntpclientmonitor.src.ui;
+package com.ntpclientmonitor.ui;
 
-import com.ntpclientmonitor.src.datamodel.CommandExecutor;
-import com.ntpclientmonitor.src.datamodel.DataModel;
-import com.ntpclientmonitor.src.datamodel.HistoryData;
-import com.ntpclientmonitor.src.datamodel.ServiceParser;
+import com.ntpclientmonitor.datamodel.CommandExecutor;
+import com.ntpclientmonitor.datamodel.DataModel;
+import com.ntpclientmonitor.datamodel.HistoryData;
+import com.ntpclientmonitor.datamodel.ServiceParser;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.TableViewSkin;
-import javafx.scene.control.skin.TreeViewSkin;
-import javafx.scene.control.skin.VirtualFlow;
+//import javafx.scene.control.skin.TableViewSkin;
+//import javafx.scene.control.skin.TreeViewSkin;
+//import javafx.scene.control.skin.VirtualFlow;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -40,7 +40,6 @@ public class FilePane extends VBox {
 
     FilePane() {
         super();
-
         //setup the file browser root
         String hostName = "computer";
         try {

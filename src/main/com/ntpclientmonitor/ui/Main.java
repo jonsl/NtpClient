@@ -1,13 +1,11 @@
-package com.ntpclientmonitor.src.ui;
+package com.ntpclientmonitor.ui;
 
-import com.ntpclientmonitor.src.datamodel.DataModel;
-import com.ntpclientmonitor.src.datamodel.SystemUtils;
+import com.ntpclientmonitor.ui.FilePane;
+import com.ntpclientmonitor.datamodel.DataModel;
+import com.ntpclientmonitor.datamodel.SystemUtils;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;

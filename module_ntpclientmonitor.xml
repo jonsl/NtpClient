@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_ntpclientmonitor" default="compile.module.ntpclientmonitor">
+  <dirname property="module.ntpclientmonitor.basedir" file="${ant.file.module_ntpclientmonitor}"/>
+  
+  <property name="module.jdk.home.ntpclientmonitor" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.ntpclientmonitor" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.ntpclientmonitor" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.ntpclientmonitor" value="-encoding UTF-8 -source 1.8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="ntpclientmonitor.output.dir" value="${module.ntpclientmonitor.basedir}/out/production/NtpClientMonitor"/>
+  <property name="ntpclientmonitor.testoutput.dir" value="${module.ntpclientmonitor.basedir}/out/test/NtpClientMonitor"/>
+  
+  <path id="ntpclientmonitor.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="ntpclientmonitor.module.production.classpath">
+    <path refid="${module.jdk.classpath.ntpclientmonitor}"/>
+    <path refid="library.lib.classpath"/>
+    <path refid="library.ntpclientmonitor.classpath"/>
+  </path>
+  
+  <path id="ntpclientmonitor.runtime.production.module.classpath">
+    <pathelement location="${ntpclientmonitor.output.dir}"/>
+    <path refid="library.lib.classpath"/>
+    <path refid="library.ntpclientmonitor.classpath"/>
+  </path>
+  
+  <path id="ntpclientmonitor.module.classpath">
+    <path refid="${module.jdk.classpath.ntpclientmonitor}"/>
+    <pathelement location="${ntpclientmonitor.output.dir}"/>
+    <path refid="library.lib.classpath"/>
+    <path refid="library.ntpclientmonitor.classpath"/>
+  </path>
+  
+  <path id="ntpclientmonitor.runtime.module.classpath">
+    <pathelement location="${ntpclientmonitor.testoutput.dir}"/>
+    <pathelement location="${ntpclientmonitor.output.dir}"/>
+    <path refid="library.lib.classpath"/>
+    <path refid="library.ntpclientmonitor.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.ntpclientmonitor">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.ntpclientmonitor">
+    <patternset refid="excluded.from.module.ntpclientmonitor"/>
+  </patternset>
+  
+  <path id="ntpclientmonitor.module.sourcepath">
+    <dirset dir="${module.ntpclientmonitor.basedir}">
+      <include name="src/main"/>
+      <include name="src/main/resources"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.ntpclientmonitor" depends="compile.module.ntpclientmonitor.production,compile.module.ntpclientmonitor.tests" description="Compile module NtpClientMonitor"/>
+  
+  <target name="compile.module.ntpclientmonitor.production" depends="register.custom.compilers" description="Compile module NtpClientMonitor; production classes">
+    <mkdir dir="${ntpclientmonitor.output.dir}"/>
+    <javac2 destdir="${ntpclientmonitor.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.ntpclientmonitor}/javac">
+      <compilerarg line="${compiler.args.ntpclientmonitor}"/>
+      <bootclasspath refid="ntpclientmonitor.module.bootclasspath"/>
+      <classpath refid="ntpclientmonitor.module.production.classpath"/>
+      <src refid="ntpclientmonitor.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.ntpclientmonitor"/>
+    </javac2>
+    
+    <copy todir="${ntpclientmonitor.output.dir}">
+      <fileset dir="${module.ntpclientmonitor.basedir}/src/main">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.ntpclientmonitor.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.ntpclientmonitor.tests" depends="register.custom.compilers,compile.module.ntpclientmonitor.production" description="compile module NtpClientMonitor; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.ntpclientmonitor" description="cleanup module">
+    <delete dir="${ntpclientmonitor.output.dir}"/>
+    <delete dir="${ntpclientmonitor.testoutput.dir}"/>
+  </target>
+</project>

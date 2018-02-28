@@ -1,4 +1,4 @@
-package com.ntpclientmonitor.src.datamodel;
+package com.ntpclientmonitor.datamodel;
 
 import java.util.ArrayList;
 import java.util.List;

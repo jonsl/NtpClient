@@ -1,8 +1,8 @@
-package com.ntpclientmonitor.src.ui;
+package com.ntpclientmonitor.ui;
 
-import com.ntpclientmonitor.src.datamodel.CommandExecutor;
-import com.ntpclientmonitor.src.datamodel.Observer;
-import com.ntpclientmonitor.src.datamodel.ServiceParser;
+import com.ntpclientmonitor.datamodel.CommandExecutor;
+import com.ntpclientmonitor.datamodel.Observer;
+import com.ntpclientmonitor.datamodel.ServiceParser;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;

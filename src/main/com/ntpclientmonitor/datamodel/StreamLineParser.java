@@ -1,4 +1,7 @@
-package com.ntpclientmonitor.src.datamodel;
+package com.ntpclientmonitor.datamodel;
+
+import com.ntpclientmonitor.datamodel.Observable;
+import com.ntpclientmonitor.datamodel.Observer;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

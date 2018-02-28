@@ -1,4 +1,7 @@
-package com.ntpclientmonitor.src.datamodel;
+package com.ntpclientmonitor.datamodel;
+
+import com.ntpclientmonitor.datamodel.DataGroup;
+import com.ntpclientmonitor.datamodel.DataModel;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

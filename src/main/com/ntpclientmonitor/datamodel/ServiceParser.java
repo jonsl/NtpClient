@@ -1,4 +1,4 @@
-package com.ntpclientmonitor.src.datamodel;
+package com.ntpclientmonitor.datamodel;
 
 public class ServiceParser extends StreamLineParser {
     private String serviceName;

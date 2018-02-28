@@ -1,8 +1,8 @@
-package com.ntpclientmonitor.src.ui;
+package com.ntpclientmonitor.ui;
 
-import com.ntpclientmonitor.src.datamodel.DataModel;
-import com.ntpclientmonitor.src.datamodel.HistoryData;
-import com.ntpclientmonitor.src.datamodel.Observer;
+import com.ntpclientmonitor.datamodel.DataModel;
+import com.ntpclientmonitor.datamodel.HistoryData;
+import com.ntpclientmonitor.datamodel.Observer;
 import javafx.scene.layout.StackPane;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -18,9 +18,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 import java.awt.*;
-import java.nio.file.WatchService;
 import java.util.Date;
-import java.util.TimerTask;
 
 class HistoryChart extends StackPane implements Observer {
     private TimeSeriesCollection offsetDataset = new TimeSeriesCollection();

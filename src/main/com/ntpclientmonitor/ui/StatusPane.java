@@ -1,7 +1,7 @@
-package com.ntpclientmonitor.src.ui;
+package com.ntpclientmonitor.ui;
 
-import com.ntpclientmonitor.src.datamodel.CommandExecutor;
-import com.ntpclientmonitor.src.datamodel.StatusParser;
+import com.ntpclientmonitor.datamodel.CommandExecutor;
+import com.ntpclientmonitor.datamodel.StatusParser;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -16,7 +16,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.paint.Color;
 
 import java.util.Timer;
 import java.util.TimerTask;

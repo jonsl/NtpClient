@@ -1,4 +1,4 @@
-package com.ntpclientmonitor.src.datamodel;
+package com.ntpclientmonitor.datamodel;
 
 public class SystemUtils {
     private static SystemUtils ourInstance = new SystemUtils();

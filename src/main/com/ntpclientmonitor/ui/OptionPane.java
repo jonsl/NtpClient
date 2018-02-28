@@ -1,4 +1,4 @@
-package com.ntpclientmonitor.src.ui;
+package com.ntpclientmonitor.ui;
 
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;

@@ -1,4 +1,6 @@
-package com.ntpclientmonitor.src.datamodel;
+package com.ntpclientmonitor.datamodel;
+
+import com.ntpclientmonitor.datamodel.Observer;
 
 public interface Observable {
     /**
