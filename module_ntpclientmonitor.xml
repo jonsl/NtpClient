@@ -62,7 +62,7 @@
   
   <target name="compile.module.ntpclientmonitor.production" depends="register.custom.compilers" description="Compile module NtpClientMonitor; production classes">
     <mkdir dir="${ntpclientmonitor.output.dir}"/>
-    <javac2 destdir="${ntpclientmonitor.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.ntpclientmonitor}/javac">
+    <javac2 includeantruntime="false" destdir="${ntpclientmonitor.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.ntpclientmonitor}/javac">
       <compilerarg line="${compiler.args.ntpclientmonitor}"/>
       <bootclasspath refid="ntpclientmonitor.module.bootclasspath"/>
       <classpath refid="ntpclientmonitor.module.production.classpath"/>
