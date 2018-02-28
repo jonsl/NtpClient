@@ -26,8 +26,9 @@ class ServicePane extends GridPane {
     private TextField stateDataTextArea;
     private Button startButton;
     private Button stopButton;
-
     private Timer timer;
+    private final int PollDelay = 1000;
+    private final int PollPeriod = 1000;
 
     ServicePane() {
         super();
@@ -124,7 +125,7 @@ class ServicePane extends GridPane {
         });
 
         timer = new Timer(true);
-        timer.scheduleAtFixedRate(new ServiceParserTimerTask(), 0, 1000);
+        timer.scheduleAtFixedRate(new ServiceParserTimerTask(), 0, PollPeriod);
     }
 
     class ServiceParserTimerTask extends TimerTask {
@@ -147,6 +148,8 @@ class ServicePane extends GridPane {
             getServiceParser().addObserver(() -> {
                 Platform.runLater(() -> {
                     try {
+                        timer.cancel();
+
                         nameDataTextArea.setText(getServiceParser().getServiceName());
                         cationDataTextArea.setText(getServiceParser().getServiceCaption());
                         descriptionDataTextArea.setText(getServiceParser().getServiceDescription());
@@ -157,7 +160,7 @@ class ServicePane extends GridPane {
                         stopButton.setDisable(getServiceParser().getServiceState().equals("Stopped"));
 
                         timer = new Timer(true);
-                        timer.scheduleAtFixedRate(new ServiceParserTimerTask(), 0, 500);
+                        timer.scheduleAtFixedRate(new ServiceParserTimerTask(), PollDelay, PollPeriod);
                     }
                     catch (Exception exception) {
                         System.err.println("exception: " + exception.getLocalizedMessage());

@@ -35,6 +35,8 @@ public class FilePane extends VBox {
     private TreeView<FileInfo> treeView;
     private ObservableList<TreeItem<FileInfo>> selectedItems;
     private Timer timer;
+    private final int PollDelay = 30000;
+    private final int PollPeriod = 30000;
 
     FilePane() {
         super();
@@ -55,11 +57,7 @@ public class FilePane extends VBox {
                 return super.createDefaultSkin();
             }
         };
-//            @Override
-//            protected Skin createDefaultSkin() {
-//                return new TTreeViewSkin(this);
-//            }
-//        };
+
         treeView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         treeView.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
@@ -75,6 +73,12 @@ public class FilePane extends VBox {
             FileTreeItem treeNode = new FileTreeItem(new FileInfo(name.toFile()));
             rootNode.getChildren().add(treeNode);
         }
+
+        // add time panel
+        // add file tree
+        TitledPane filePane = new TitledPane("Loopstats location", treeView);
+        filePane.setCollapsible(false);
+        getChildren().add(filePane);
 
         CommandExecutor commandExecutor = new CommandExecutor("wmic service NTP get PathName /format:list");
         ServiceParser serviceParser = new ServiceParser();
@@ -100,17 +104,8 @@ public class FilePane extends VBox {
         });
         commandExecutor.exec(serviceParser, null);
 
-        // add time panel
-        TitledPane systemPane = new TitledPane("System time", new DigitalSystemTimePanel());
-        systemPane.setAnimated(false);
-        getChildren().add(systemPane);
-        // add file tree
-        TitledPane filePane = new TitledPane("Loopstats location", treeView);
-        filePane.setCollapsible(false);
-        getChildren().add(filePane);
-
         this.timer = new Timer(true);
-        this.timer.scheduleAtFixedRate(new SelectedItemsTimerTask(), 10000, 10000);
+        this.timer.scheduleAtFixedRate(new SelectedItemsTimerTask(), 0, PollPeriod);
     }
 
     @Override
@@ -224,58 +219,14 @@ public class FilePane extends VBox {
         public void run() {
             Platform.runLater(() -> {
                 timer.cancel();
+
                 updateHistoryData(false);
+
                 timer = new Timer(true);
-                timer.scheduleAtFixedRate(new SelectedItemsTimerTask(), 10000, 10000);
+                timer.scheduleAtFixedRate(new SelectedItemsTimerTask(), PollDelay, PollPeriod);
             });
         }
     }
-
-//    /**
-//     * REF: https://stackoverflow.com/questions/29402412/how-to-get-javafx-treeview-to-behave-consistently-upon-node-expansion
-//     * stop scroll jump expanding a node when scrolled to the bottom of the tree
-//     */
-//    public static class TTreeViewSkin<T> extends TreeViewSkin<T> {
-//        TTreeViewSkin(TreeView treeView) {
-//            super(treeView);
-//        }
-//
-//        /**
-//         * Overridden to return custom flow.
-//         */
-//        @Override
-//        protected VirtualFlow createVirtualFlow() {
-////            return new MyFlow();
-//        }
-//
-////        @Override
-////        protected VirtualFlow<TreeCell<T>> createVirtualFlow() {
-//////            return new TVirtualFlow<TreeCell<T>>();
-////        }
-//
-//    }
-//
-//    class TVirtualFlow<T extends IndexedCell> extends VirtualFlow<T> {
-//
-//
-//
-//        @Override
-//        public double getPro() {
-//            double position = super.getPosition();
-//            if (position == 1.0d) {
-//                return 0.99999999999;
-//            }
-//            return super.getPosition();
-//        }
-//
-//        @Override
-//        public void setPosition(double newPosition) {
-//            if (newPosition == 1.0d) {
-//                newPosition = 0.99999999999;
-//            }
-//            super.setPosition(newPosition);
-//        }
-//    }
 
     public class FileInfo {
         private File file;

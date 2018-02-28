@@ -23,6 +23,9 @@ import java.util.TimerTask;
 
 class StatusPane extends GridPane {
     private TableView<PeerRow> tableView = new TableView<>();
+    private Timer timer;
+    private final int PollDelay = 10000;
+    private final int PollPeriod = 10000;
 
     StatusPane() {
         super();
@@ -173,8 +176,8 @@ class StatusPane extends GridPane {
             return row;
         });
 
-        final Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(new StatusParserTimerTask(), 0, 10000);
+        timer = new Timer(true);
+        timer.scheduleAtFixedRate(new StatusParserTimerTask(), 0, PollPeriod);
     }
 
     public class PeerRow {
@@ -343,11 +346,16 @@ class StatusPane extends GridPane {
             setStatusParser(new StatusParser());
             getStatusParser().addObserver(() -> {
                 Platform.runLater(() -> {
+                    timer.cancel();
+
                     ObservableList<PeerRow> data = FXCollections.observableArrayList();
                     for (StatusParser.Peer peer : getStatusParser().getPeers()) {
                         data.add(new PeerRow(peer));
                     }
                     tableView.setItems(data);
+
+                    timer = new Timer(true);
+                    timer.scheduleAtFixedRate(new StatusParserTimerTask(), PollDelay, PollPeriod);
                 });
             });
             commandExecutor.exec(getStatusParser(), null);

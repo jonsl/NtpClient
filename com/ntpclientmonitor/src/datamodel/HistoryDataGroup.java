@@ -14,7 +14,7 @@ public class HistoryDataGroup extends DataGroup {
     }
 
     @Override
-    protected void getData() {
+    public synchronized void getData() {
     }
 
     public final List<HistoryData> getHistoryData() {

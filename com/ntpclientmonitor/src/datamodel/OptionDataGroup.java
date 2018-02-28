@@ -11,7 +11,7 @@ public class OptionDataGroup extends DataGroup {
     //
     private TreeMap<String, OptionEntry> optionMap;
 
-    public OptionDataGroup() {
+    OptionDataGroup() {
         super();
     }
 
@@ -25,6 +25,18 @@ public class OptionDataGroup extends DataGroup {
             getOptionData();
             notifyObservers();
         }).start();
+    }
+
+    private void createTable() {
+        String sql = "CREATE TABLE \"option\" ( " +
+                "`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, `name` TEXT NOT NULL, `value` TEXT NOT NULL " +
+                ")";
+        try (Statement stmt = DataModel.getInstance().getConnection().createStatement();) {
+            // create a new table
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void getOptionData() {

@@ -20,7 +20,7 @@ public class DataModel {
     // the one and only sql connection for thread access
     private Connection connection;
 
-    protected DataModel() {
+    private DataModel() {
     }
 
     public static DataModel getInstance() {

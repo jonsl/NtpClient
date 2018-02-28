@@ -26,9 +26,6 @@ class HistoryChart extends StackPane implements Observer {
     private TimeSeriesCollection offsetDataset = new TimeSeriesCollection();
     private TimeSeriesCollection frequencyDataset = new TimeSeriesCollection();
     private JFreeChart chart;
-    private double windowSizeMillis = 1000.0 * 60.0 * 10.0;
-    //
-    private WatchService watchService;
 
     HistoryChart() {
         super();
@@ -64,7 +61,8 @@ class HistoryChart extends StackPane implements Observer {
         plot.setDomainPannable(true);
         plot.setRangePannable(true);
 
-        this.chart = new JFreeChart(null, null, plot, true);
+        this.chart = new JFreeChart("hold ctrl key to define zoom box with mouse",
+                new Font("Courier", Font.PLAIN, 12), plot, true);
         ChartViewer chartViewer = new ChartViewer(chart, false);
 
         // remove default pan handler
