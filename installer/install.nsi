@@ -5,9 +5,9 @@
  
 !define AppName "NTP Client Monitor"
 !define AppVersion "1.0b"
-!define ShortName "NCM"
+!define ShortName "NTP Client Monitor"
 !define JRE_VERSION "1.8.162"
-!define Vendor "Home"
+!define Vendor "Jon Slater"
  
 !include "MUI.nsh"
 !include "Sections.nsh"
@@ -101,16 +101,11 @@ Section -installjre jre
 ;  MessageBox MB_OK "Inside JRE Section"
   Strcmp $InstallJRE "yes" InstallJRE JREPathStorage
   DetailPrint "Starting the JRE installation"
+
 InstallJRE:
   File /oname=$TEMP\jre_setup.exe jre-8u162-windows-i586.exe
-;  MessageBox MB_OK "Installing JRE"
   DetailPrint "Launching JRE setup"
-  ;ExecWait "$TEMP\jre_setup.exe /s /v" $0
-  ; The silent install /S does not work for installing the JRE, sun has documentation on the 
-  ; parameters needed.  I spent about 2 hours hammering my head against the table until it worked
-;  ExecWait '"$TEMP\jre_setup.exe" /s /v\"/qn REBOOT=Suppress JAVAUPDATE=0 WEBSTARTICON=0\"' $0
-  ;ExecWait "$TEMP\jre_setup.exe /L $TEMP\jre_setup.log  /s /v /passive REBOOT=Suppress JAVAUPDATE=0 WEBSTARTICON=0" $0
-  ExecWait "$TEMP\jre_setup.exe /s REBOOT=0" $0
+  ExecWait "$TEMP\jre_setup.exe REBOOT=0" $0
   DetailPrint "Setup finished"
   Delete "$TEMP\jre_setup.exe"
   StrCmp $0 "0" InstallVerif 0
@@ -119,7 +114,7 @@ InstallJRE:
  
 InstallVerif:
   DetailPrint "Checking the JRE Setup's outcome"
-;  MessageBox MB_OK "Checking JRE outcome"
+  MessageBox MB_OK "Checking JRE outcome"
   Push "${JRE_VERSION}"
   Call DetectJRE  
   Pop $0	  ; DetectJRE's return value
@@ -157,12 +152,26 @@ Section "Installation of ${AppName}" SecAppFiles
   SetOutPath $INSTDIR
   File /a ..\out\artifacts\NtpClientMonitor_jar\NtpClientMonitor.jar
   File /a /r /x .git ..\db
-  File /a "NTP Client Monitor.lnk"
-;File /r "stream\"
-; If you need the path to JRE, you can either get it here for from $JREPath
-;  !insertmacro MUI_INSTALLOPTIONS_READ $0 "jre.ini" "UserDefinedSection" "JREPath"
-;  MessageBox MB_OK "JRE Read: $0"
-  ;Store install folder
+  
+;create desktop shortcut
+CreateShortCut "$DESKTOP\${AppName}.lnk" "javaw -jar $INSTDIR\NtpClientMonitor.jar"
+;ShellLink::SetShortCutIconLocation "$DESKTOP\${AppName}.lnk" "$INSTDIR/logo.ico"
+;Pop $0
+;ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${AppName}.lnk" "$INSTDIR"
+;Pop $0
+;ShellLink::SetShortCutShowMode "$DESKTOP\${AppName}.lnk" SW_SHOWMAXIMIZED
+;Pop $0
+
+;  CreateShortCut "$DESKTOP\${MUI_PRODUCT}.lnk" "$INSTDIR\${MUI_FILE}.exe" ""
+ 
+;create start-menu items
+;  CreateDirectory "$SMPROGRAMS\${MUI_PRODUCT}"
+;  CreateShortCut "$SMPROGRAMS\${MUI_PRODUCT}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
+;  CreateShortCut "$SMPROGRAMS\${MUI_PRODUCT}\${MUI_PRODUCT}.lnk" "$INSTDIR\${MUI_FILE}.exe" "" "$INSTDIR\${MUI_FILE}.exe" 0
+  
+  
+;  File /a "NTP Client Monitor.lnk"
+
   WriteRegStr HKLM "SOFTWARE\${Vendor}\${ShortName}" "" $INSTDIR
  
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ShortName}" "DisplayName" "${AppName}"
@@ -210,24 +219,24 @@ Function myPreInstfiles
 FunctionEnd
  
 Function CheckInstalledJRE
-  MessageBox MB_OK "Checking Installed JRE Version"
+;  MessageBox MB_OK "Checking Installed JRE Version"
   Push "${JRE_VERSION}"
   Call DetectJRE
-  Messagebox MB_OK "Done checking JRE version"
+;  Messagebox MB_OK "Done checking JRE version"
   Exch $0	; Get return value from stack
   StrCmp $0 "0" NoFound
   StrCmp $0 "-1" FoundOld
   Goto JREAlreadyInstalled
  
 FoundOld:
-  MessageBox MB_OK "Old JRE found"
+;  MessageBox MB_OK "Old JRE found"
   !insertmacro MUI_INSTALLOPTIONS_WRITE "jre.ini" "Field 1" "Text" "${AppName} requires a more recent version of the Java Runtime Environment than the one found on your computer. The installation of JRE ${JRE_VERSION} will start."
   !insertmacro MUI_HEADER_TEXT "$(TEXT_JRE_TITLE)" "$(TEXT_JRE_SUBTITLE)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY_RETURN "jre.ini"
   Goto MustInstallJRE
  
 NoFound:
-  MessageBox MB_OK "JRE not found"
+;  MessageBox MB_OK "JRE not found"
   !insertmacro MUI_INSTALLOPTIONS_WRITE "jre.ini" "Field 1" "Text" "No Java Runtime Environment could be found on your computer. The installation of JRE v${JRE_VERSION} will start."
   !insertmacro MUI_HEADER_TEXT "$(TEXT_JRE_TITLE)" "$(TEXT_JRE_SUBTITLE)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY_RETURN "jre.ini"
@@ -242,7 +251,7 @@ MustInstallJRE:
  
 JREAlreadyInstalled:
 ;  MessageBox MB_OK "No download: ${TEMP2}"
-  MessageBox MB_OK "JRE already installed"
+;  MessageBox MB_OK "JRE already installed"
   StrCpy $InstallJRE "no"
   !insertmacro MUI_INSTALLOPTIONS_WRITE "jre.ini" "UserDefinedSection" "JREPath" $JREPATH
   Pop $0		; Restore $0
@@ -263,12 +272,12 @@ Function DetectJRE
   Push $2	; $2 = Javahome
   Push $3	; $3 and $4 are used for checking the major/minor version of java
   Push $4
-  MessageBox MB_OK "Detecting JRE"
+;  MessageBox MB_OK "Detecting JRE"
   ReadRegStr $1 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment" "CurrentVersion"
-  MessageBox MB_OK "Read : $1"
+;  MessageBox MB_OK "Read : $1"
   StrCmp $1 "" DetectTry2
   ReadRegStr $2 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\$1" "JavaHome"
-  MessageBox MB_OK "Read 3: $2"
+;  MessageBox MB_OK "Read 3: $2"
   StrCmp $2 "" DetectTry2
   Goto GetJRE
  
@@ -282,29 +291,30 @@ DetectTry2:
  
 GetJRE:
 ; $0 = version requested. $1 = version found. $2 = javaHome
-  MessageBox MB_OK "Getting JRE"
+;  MessageBox MB_OK "Getting JRE"
   IfFileExists "$2\bin\java.exe" 0 NoFound
   StrCpy $3 $0 1			; Get major version. Example: $1 = 1.5.0, now $3 = 1
   StrCpy $4 $1 1			; $3 = major version requested, $4 = major version found
-  MessageBox MB_OK "Want $3 , found $4"
+;  MessageBox MB_OK "Want $3 , found $4"
   IntCmp $4 $3 0 FoundOld FoundNew
   StrCpy $3 $0 1 2
   StrCpy $4 $1 1 2			; Same as above. $3 is minor version requested, $4 is minor version installed
-  MessageBox MB_OK "Want $3 , found $4" 
+;  MessageBox MB_OK "Want $3 , found $4" 
   IntCmp $4 $3 FoundNew FoundOld FoundNew
  
 NoFound:
-  MessageBox MB_OK "JRE not found"
+;  MessageBox MB_OK "JRE not found"
   Push "0"
   Goto DetectJREEnd
  
 FoundOld:
-  MessageBox MB_OK "JRE too old: $3 is older than $4"
+;  MessageBox MB_OK "JRE too old: $3 is older than $4"
 ;  Push ${TEMP2}
   Push "-1"
   Goto DetectJREEnd  
+
 FoundNew:
-  MessageBox MB_OK "JRE is new: $3 is newer than $4"
+;  MessageBox MB_OK "JRE is new: $3 is newer than $4"
  
   Push "$2\bin\java.exe"
 ;  Push "OK"
