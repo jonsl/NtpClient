@@ -153,24 +153,13 @@ Section "Installation of ${AppName}" SecAppFiles
   File /a ..\out\artifacts\NtpClientMonitor_jar\NtpClientMonitor.jar
   File /a /r /x .git ..\db
   
-;create desktop shortcut
-CreateShortCut "$DESKTOP\${AppName}.lnk" "javaw -jar $INSTDIR\NtpClientMonitor.jar"
-;ShellLink::SetShortCutIconLocation "$DESKTOP\${AppName}.lnk" "$INSTDIR/logo.ico"
-;Pop $0
-;ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${AppName}.lnk" "$INSTDIR"
-;Pop $0
-;ShellLink::SetShortCutShowMode "$DESKTOP\${AppName}.lnk" SW_SHOWMAXIMIZED
-;Pop $0
-
-;  CreateShortCut "$DESKTOP\${MUI_PRODUCT}.lnk" "$INSTDIR\${MUI_FILE}.exe" ""
- 
-;create start-menu items
-;  CreateDirectory "$SMPROGRAMS\${MUI_PRODUCT}"
-;  CreateShortCut "$SMPROGRAMS\${MUI_PRODUCT}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
-;  CreateShortCut "$SMPROGRAMS\${MUI_PRODUCT}\${MUI_PRODUCT}.lnk" "$INSTDIR\${MUI_FILE}.exe" "" "$INSTDIR\${MUI_FILE}.exe" 0
-  
-  
-;  File /a "NTP Client Monitor.lnk"
+  ;create desktop shortcut
+  CreateShortCut "$DESKTOP\${AppName}.lnk" "javaw" "-jar $\"$INSTDIR\NtpClientMonitor.jar$\""
+  ShellLink::SetRunAsAdministrator "$DESKTOP\${AppName}.lnk"
+  Pop $0
+  ${If} $0 == -1
+    MessageBox MB_OK "Could not create desktop shortcut"
+  ${EndIf}
 
   WriteRegStr HKLM "SOFTWARE\${Vendor}\${ShortName}" "" $INSTDIR
  
@@ -356,8 +345,9 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ShortName}"
   DeleteRegKey HKLM  "SOFTWARE\${Vendor}\${AppName}"
   ; remove shortcuts, if any.
+  Delete "$DESKTOP\${AppName}.lnk"
   Delete "$SMPROGRAMS\${AppName}\*.*"
   ; remove files
   RMDir /r "$INSTDIR"
- 
+  
 SectionEnd
