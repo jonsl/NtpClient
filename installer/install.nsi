@@ -152,9 +152,10 @@ Section "Installation of ${AppName}" SecAppFiles
   SetOutPath $INSTDIR
   File /a ..\out\artifacts\NtpClientMonitor_jar\NtpClientMonitor.jar
   File /a /r /x .git ..\db
+  File /a clock.ico
   
   ;create desktop shortcut
-  CreateShortCut "$DESKTOP\${AppName}.lnk" "javaw" "-jar $\"$INSTDIR\NtpClientMonitor.jar$\""
+  CreateShortCut "$DESKTOP\${AppName}.lnk" "javaw" "-jar $\"$INSTDIR\NtpClientMonitor.jar$\"" "$INSTDIR\clock.ico" 0
   ShellLink::SetRunAsAdministrator "$DESKTOP\${AppName}.lnk"
   Pop $0
   ${If} $0 == -1
